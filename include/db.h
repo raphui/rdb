@@ -9,13 +9,23 @@
 
 #define MAX_DB_SIZE	1024
 
-extern int *db;
+//extern int *db;
+
+typedef struct entry
+{
+	int key;
+	int value;
+	int hash;
+
+}Entry;
+
+extern struct entry *db[];
 
 int createDb( const char *name );
 int destroyDb( const char *name );
 int insert( int key , int value );
 void printDb( void );
 void printFullDb( void );
-void sortAsc( int *a , int n );
+void sortAsc( struct entry **a , int n );
 
 #endif /* DB_H */

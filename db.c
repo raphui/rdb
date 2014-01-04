@@ -1,6 +1,6 @@
 #include "db.h"
 
-int *db = NULL;
+struct entry *db[];
 
 static int crc( int val )
 {
@@ -46,10 +46,11 @@ int createDb( const char *name )
 	TRACE_2( DB , "createDb( %s )." , name );
 
 	int ret = 0;
+	int i = 0;
 
 	if( !db )
 	{
-		db = ( int * )zmalloc( MAX_DB_SIZE * sizeof( int ) );
+		*db = ( struct entry * )zmalloc( MAX_DB_SIZE * sizeof( struct entry * ) );
 
 		if( !db )
 		{
@@ -59,6 +60,9 @@ int createDb( const char *name )
 		else
 		{
 			TRACE_1( DB , "Database has been allocate.\n");
+
+			for( i == 0 ; i < MAX_DB_SIZE ; i++ )
+				db[i] = ( struct entry * )zmalloc( sizeof( struct entry ) );
 			
 			memset( db , 0 , MAX_DB_SIZE );
 		}
@@ -77,6 +81,7 @@ int destroyDb( const char *name )
 	TRACE_2( DB , "destroyDb( %s )." , name );
 	
 	int ret = 0;
+	int i = 0;
 
 	if( !db )
 	{
@@ -85,6 +90,9 @@ int destroyDb( const char *name )
 	}
 	else
 	{
+		for( i = 0 ; i < MAX_DB_SIZE ; i++ )
+			zfree( db[i] );
+	
 		zfree( db );
 	}
 
@@ -98,9 +106,9 @@ int insert( int key , int value )
 
 	int ret = 0;
 	int index = 0;
-	int *p = db;
+	struct entry *p = db;
 
-	while( *p != 0 )
+	while( p[index].hash != 0 )
 	{
 		p++;
 		index++;
@@ -110,9 +118,9 @@ int insert( int key , int value )
 
 	p = db + index;
 
-	*p = key;
-	*++p = value;
-	*++p = hash( key , value );
+	p[index].key = key;
+	p[index].value = value;
+	p[index].hash = hash( key , value );
 	
 	return ret;
 }
@@ -122,72 +130,69 @@ void printDb( void )
 {
 	TRACE_2( DB , "printDb().");
 
-	int *p = db;
+	struct entry *p = db;
 	int i = 0;
+	int index = 0;
 
-	printf("|\tKey\t|\tValue\t|\tHash\t\t");
+	printf("|\tKey\t|\tValue\t|\tHash\t|\n");
 
-	while( *p )
+	while( p[index].hash != 0 )
 	{
-		if( ( i % 3 ) == 0 )
-			printf("|\n");
-		
-		printf("|\t0x%x\t" , *p );
-		p++;
+		printf("|\t0x%x\t" , p[index].key );
+		printf("|\t0x%x\t" , p[index].value );
+		printf("|\t0x%x\t" , p[index].hash );
+		printf("|\n");
+		index++;
 		i++;
 	}
 	
-	printf("|\n");
-
 }
 
 void printFullDb( void )
 {
-	TRACE_2( DB , "printDb().");
+	TRACE_2( DB , "printFullDb().");
 
-	int *p = db;
+	struct entry *p = db;
 	int i = 0;
-	int j = 0;
+	int index = 0;
 
-	printf("|\tKey\t|\tValue\t|\tHash\t\t");
+	printf("|\tKey\t|\tValue\t|\tHash\t|\n");
 
-	while( j++ < MAX_DB_SIZE )
+	while( index < MAX_DB_SIZE )
 	{
-		if( ( i % 3 ) == 0 )
-			printf("|\n");
-		
-		printf("|\t0x%x\t" , *p );
-		p++;
+		printf("|\t0x%x\t" , p[index].key );
+		printf("|\t0x%x\t" , p[index].value );
+		printf("|\t0x%x\t" , p[index].hash );
+		printf("|\n");
+		index++;
 		i++;
 	}
 	
-	printf("|\n");
-
 }
 
-void sortAsc( int *a , int n )
+void sortAsc( struct entry **a , int n )
 {
 	TRACE_2( DB , "sortAsc( %p , %d )." , a , n );
 	
 	if( n < 2 )
 		return;
 
-	int p =  *( a + ( n / 2 ) );
-	int *l = a;
-	int *r = a + n - 1;
+	int p =  a[n / 2].key;
+	struct entry *l = a;
+	struct entry *r = a + n - 1;
 	int t;
 
 	while( l <= r )
 	{
-		if( *l < p )
+		if( l.key < p )
 			l++;
-		else if( *r > p )
+		else if( r.key > p )
 			r--;
 		else
 		{
-			t = *l;
-			*l++ = *r;
-			*r-- = t;
+			t = *l.key;
+			*l++.key = *r.key;
+			*r--.key = t;
 		}
 	}
 
