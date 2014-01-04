@@ -26,6 +26,6 @@ int destroyDb( const char *name );
 int insert( int key , int value );
 void printDb( void );
 void printFullDb( void );
-void sortAsc( struct entry **a , int n );
+void sortAsc( struct entry *a , int n );
 
 #endif /* DB_H */

@@ -170,7 +170,7 @@ void printFullDb( void )
 	
 }
 
-void sortAsc( struct entry **a , int n )
+void sortAsc( struct entry *a , int n )
 {
 	TRACE_2( DB , "sortAsc( %p , %d )." , a , n );
 	
@@ -184,15 +184,15 @@ void sortAsc( struct entry **a , int n )
 
 	while( l <= r )
 	{
-		if( l.key < p )
+		if( l->key < p )
 			l++;
-		else if( r.key > p )
+		else if( r->key > p )
 			r--;
 		else
 		{
-			t = *l.key;
-			*l++.key = *r.key;
-			*r--.key = t;
+			t = l->key;
+			(l++)->key = r->key;
+			(r--)->key = t;
 		}
 	}
 
