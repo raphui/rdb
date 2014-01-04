@@ -1,4 +1,4 @@
-TARGET := rnk
+TARGET := rdb
 PROJECT_HOME := $(PWD)
 INCLUDES_HEADERS := -I$(PROJECT_HOME)/include
 INCLUDES_LIBS_HEADERS := -I/usr/local/include/ -I/usr/include/

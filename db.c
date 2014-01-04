@@ -140,3 +140,58 @@ void printDb( void )
 	printf("|\n");
 
 }
+
+void printFullDb( void )
+{
+	TRACE_2( DB , "printDb().");
+
+	int *p = db;
+	int i = 0;
+	int j = 0;
+
+	printf("|\tKey\t|\tValue\t|\tHash\t\t");
+
+	while( j++ < MAX_DB_SIZE )
+	{
+		if( ( i % 3 ) == 0 )
+			printf("|\n");
+		
+		printf("|\t0x%x\t" , *p );
+		p++;
+		i++;
+	}
+	
+	printf("|\n");
+
+}
+
+void sortAsc( int *a , int n )
+{
+	TRACE_2( DB , "sortAsc( %p , %d )." , a , n );
+	
+	if( n < 2 )
+		return;
+
+	int p =  *( a + ( n / 2 ) );
+	int *l = a;
+	int *r = a + n - 1;
+	int t;
+
+	while( l <= r )
+	{
+		if( *l < p )
+			l++;
+		else if( *r > p )
+			r--;
+		else
+		{
+			t = *l;
+			*l++ = *r;
+			*r-- = t;
+		}
+	}
+
+
+	sortAsc( a , r - a + 1 );
+	sortAsc( l, a + n - l );
+}
