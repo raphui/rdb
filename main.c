@@ -18,6 +18,7 @@ int main( int argc , char **argv )
 	printDb();
 	sortAsc( db , MAX_DB_SIZE );
 	printFullDb();
+	destroyDb("testdb");
 
 	return 0;
 }

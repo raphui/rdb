@@ -62,7 +62,13 @@ int createDb( const char *name )
 			TRACE_1( DB , "Database has been allocate.\n");
 
 			for( i = 0 ; i < MAX_DB_SIZE ; i++ )
+			{
 				db[i] = ( struct entry * )zmalloc( sizeof( struct entry ) );
+				if( !db[i] )
+					printf("Failed to allocate at index: %d\n" , i );
+				else
+					printf("%d: %p\n" , i , db[i] );
+			}
 		}
 	}
 	else
@@ -79,6 +85,7 @@ int destroyDb( const char *name )
 	TRACE_2( DB , "destroyDb( %s )." , name );
 	
 	int ret = 0;
+	int i = 0;
 
 	if( !db )
 	{
@@ -87,6 +94,9 @@ int destroyDb( const char *name )
 	}
 	else
 	{
+		for( i = 0 ; i < MAX_DB_SIZE ; i++ )
+			zfree( db[i] );
+
 		zfree( db );
 	}
 
@@ -133,7 +143,6 @@ void printDb( void )
 		printf("|\t0x%x\t" , p[index]->value );
 		printf("|\t0x%x\t" , p[index]->hash );
 		printf("|\n");
-		p++;
 		index++;
 	}
 	
@@ -150,11 +159,12 @@ void printFullDb( void )
 
 	while( index < MAX_DB_SIZE )
 	{
+		TRACE_3( DB , "%d: %p , %p %p\n" , index , p , *p );
+
 		printf("|\t0x%x\t" , p[index]->key );
 		printf("|\t0x%x\t" , p[index]->value );
 		printf("|\t0x%x\t" , p[index]->hash );
 		printf("|\n");
-		p++;
 		index++;
 	}
 	
@@ -189,8 +199,11 @@ void sortAsc( struct entry **a , int n )
 //		}
 //	}
 
-	while( *l <= *r )
+	while( l <= r )
 	{
+		TRACE_3( DB , "%p , %p\n" , l , r );
+		TRACE_3( DB , "%x , %x\n" , (*l)->key , (*r)->key );
+
 		if( (*l)->key < p )
 			*l++;
 		else if( (*r)->key > p )
