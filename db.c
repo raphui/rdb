@@ -1,6 +1,8 @@
 #include "db.h"
 
-struct entry **db;
+//struct entry **db;
+
+static struct database *databases[MAX_DB_COUNT];
 
 static int crc( int val )
 {
@@ -41,18 +43,58 @@ static int hash( int key , int value )
 	return hash;
 }
 
+static int getDatabase( const char *name )
+{
+	TRACE_2( DB , "getDatabase( %s ).\n" , name );
+
+	int i = 0;
+
+	for( i = 0 ; i < MAX_DB_COUNT ; i++ )
+	{
+		if( databases[i] != NULL )
+			if( databases[i]->name != NULL )
+				if( !strcmp( databases[i]->name , name ) )
+					return i;
+	}
+
+}
+
 int createDb( const char *name )
 {
 	TRACE_2( DB , "createDb( %s )." , name );
 
 	int ret = 0;
 	int i = 0;
+	int index = 0;
 
-	if( !db )
+	for( i = 0 ; i < MAX_DB_COUNT ; i++ )
 	{
-		db = ( struct entry ** )zmalloc( MAX_DB_SIZE * sizeof( struct entry ) );
+		if( !databases[i] )
+		{
+			index = i;
+			break;
+		}
+	}
 
-		if( !db )
+	TRACE_1( DB , "Find free index: %d in databases entry.\n" , index );
+
+	databases[index] = ( struct database * )zmalloc( sizeof( struct database ) );
+
+	if( !databases[index] )
+	{
+		TRACE_ERROR( DB , "Failed to allocate database entry.\n");
+		ret = -ENOMEM;
+	}
+	else
+	{
+		TRACE_1( DB , "Database: %s has been added to the databases entry.\n" , name );
+
+		databases[index]->name = ( const char * )zmalloc( strlen( name ) + 1 * sizeof( char ) );
+		snprintf( databases[index]->name , strlen( name ) + 1 , "%s" , name );
+
+		databases[index]->db = ( struct entry ** )zmalloc( MAX_DB_SIZE * sizeof( struct entry ) );
+
+		if( !databases[index]->db )
 		{
 			TRACE_ERROR( DB , "Failed to allocate database.\n");
 			ret = -ENOMEM;
@@ -60,20 +102,17 @@ int createDb( const char *name )
 		else
 		{
 			TRACE_1( DB , "Database has been allocate.\n");
-
+	
 			for( i = 0 ; i < MAX_DB_SIZE ; i++ )
 			{
-				db[i] = ( struct entry * )zmalloc( sizeof( struct entry ) );
-				if( !db[i] )
+				databases[index]->db[i] = ( struct entry * )zmalloc( sizeof( struct entry ) );
+				if( !databases[index]->db[i] )
 					printf("Failed to allocate at index: %d\n" , i );
 				else
-					printf("%d: %p\n" , i , db[i] );
+					TRACE_3( DB , "%d: %p\n" , i , databases[index]->db[i] );
 			}
 		}
-	}
-	else
-	{
-		TRACE_1( DB , "A database is already allocate.\n");
+
 	}
 
 
@@ -86,8 +125,11 @@ int destroyDb( const char *name )
 	
 	int ret = 0;
 	int i = 0;
+	int index;
 
-	if( !db )
+	index = getDatabase( name );
+
+	if( !databases[index]->db )
 	{
 		TRACE_1( DB , "No database has been allocate.\n");
 		ret = -ENXIO;
@@ -95,22 +137,25 @@ int destroyDb( const char *name )
 	else
 	{
 		for( i = 0 ; i < MAX_DB_SIZE ; i++ )
-			zfree( db[i] );
+			zfree( databases[index]->db[i] );
 
-		zfree( db );
+		zfree( databases[index]->db );
 	}
 
 
 	return ret;
 }
 
-int insert( int key , int value )
+int insertDb( const char *name , int key , int value )
 {
-	TRACE_2( DB , "insert( %d , %d )." , key , value );
+	TRACE_2( DB , "insertDb( %d , %d )." , key , value );
 
 	int ret = 0;
 	int index = 0;
-	struct entry **p = db;
+	struct entry **p = NULL;
+
+	index = getDatabase( name );
+	p = databases[index]->db;
 
 	while( p[index]->hash != 0 )
 	{
@@ -128,12 +173,15 @@ int insert( int key , int value )
 }
 
 
-void printDb( void )
+void printDb( const char *name )
 {
 	TRACE_2( DB , "printDb().");
 
-	struct entry **p = db;
+	struct entry **p = NULL;
 	int index = 0;
+
+	index = getDatabase( name );
+	p = databases[index]->db;
 
 	printf("|\tKey\t|\tValue\t|\tHash\t|\n");
 
@@ -148,12 +196,15 @@ void printDb( void )
 	
 }
 
-void printFullDb( void )
+void printFullDb( const char *name )
 {
 	TRACE_2( DB , "printFullDb().");
 
-	struct entry **p = db;
+	struct entry **p = NULL;
 	int index = 0;
+
+	index = getDatabase( name );
+	p = databases[index]->db;
 
 	printf("|\tKey\t|\tValue\t|\tHash\t|\n");
 
@@ -170,7 +221,7 @@ void printFullDb( void )
 	
 }
 
-void sortAsc( struct entry **a , int n )
+static void sortAsc( struct entry **a , int n )
 {
 	TRACE_2( DB , "sortAsc( %p , %d )." , a , n );
 	
@@ -180,24 +231,7 @@ void sortAsc( struct entry **a , int n )
 	int p =  a[n / 2]->key;
 	struct entry **l = a;
 	struct entry **r = a + n - 1;
-	int kl;
-	int kr;
-//	int t;
 	struct entry *t;
-
-//	while( kl <= kr )
-//	{
-//		if( l[kl]->key < p )
-//			kl++;
-//		else if( r[kr]->key > p )
-//			kr--;
-//		else
-//		{
-//			t = l[kl]->key;
-//			l[kl++]->key = r[kr]->key;
-//			r[kr--]->key = t;
-//		}
-//	}
 
 	while( l <= r )
 	{
@@ -210,9 +244,6 @@ void sortAsc( struct entry **a , int n )
 			*r--;
 		else
 		{
-//			t = (*l)->key;
-//			(*l++)->key = (*r)->key;
-//			(*r--)->key = t;
 
 			t = *l;
 			*l++ = *r;
@@ -223,4 +254,18 @@ void sortAsc( struct entry **a , int n )
 
 	sortAsc( a , r - a + 1 );
 	sortAsc( l, a + n - l );
+}
+
+void sortAscDb( const char *name , int n )
+{
+	TRACE_2( DB , "sortAscDb( %s , %d ).\n" , name , n );
+
+	int index;
+	struct entry **p = NULL;
+
+	index = getDatabase( name );
+	p = databases[index]->db;
+
+	sortAsc( p , n );
+
 }
