@@ -57,6 +57,7 @@ static int getDatabase( const char *name )
 					return i;
 	}
 
+	return -ENODATA;
 }
 
 int createDb( const char *name )
@@ -89,7 +90,7 @@ int createDb( const char *name )
 	{
 		TRACE_1( DB , "Database: %s has been added to the databases entry.\n" , name );
 
-		databases[index]->name = ( const char * )zmalloc( strlen( name ) + 1 * sizeof( char ) );
+		databases[index]->name = ( char * )zmalloc( strlen( name ) + 1 * sizeof( char ) );
 		snprintf( databases[index]->name , strlen( name ) + 1 , "%s" , name );
 
 		databases[index]->db = ( struct entry ** )zmalloc( MAX_DB_SIZE * sizeof( struct entry ) );
@@ -157,6 +158,8 @@ int insertDb( const char *name , int key , int value )
 	index = getDatabase( name );
 	p = databases[index]->db;
 
+	index = 0;
+
 	while( p[index]->hash != 0 )
 	{
 		p++;
@@ -169,6 +172,36 @@ int insertDb( const char *name , int key , int value )
 	p[index]->value = value;
 	p[index]->hash = hash( key , value );
 	
+	return ret;
+}
+
+
+int searchDb( const char *name , int key )
+{
+	TRACE_2( DB , "searchDb( %s , %d ).\n" , name , key );
+
+	int ret = -ENODATA;
+	int index = 0;
+	int i = 0;
+	struct entry **p = NULL;
+
+	index = getDatabase( name );
+	p = databases[index]->db;
+
+	for( i = 0 ; i < MAX_DB_SIZE ; i++ )
+	{
+		if( p[i]->key == key )
+		{
+			/* Perform a hash, to check data integrity */
+			if( p[i]->hash == hash( key , p[i]->value ) )
+			{
+				TRACE_1( DB , "Pair has been finded !\n");
+				ret = i;
+				break;
+			}
+		}
+	}
+
 	return ret;
 }
 
@@ -268,4 +301,63 @@ void sortAscDb( const char *name , int n )
 
 	sortAsc( p , n );
 
+}
+
+char *setPair( unsigned int key , unsigned int value )
+{
+	TRACE_2( DB , "setPair( %d , %d ).\n" , key , value );
+
+	int ret = 0;
+	char *status = NULL;
+
+	ret = insertDb( "testdb" , key , value );
+
+	status = ( char * )zmalloc( 124 * sizeof( char ) );
+
+	if( !status )
+	{
+		TRACE_ERROR( DB , "Failed to allocate status string.\n");
+	}
+	else
+	{
+		if( ret < 0 )
+			snprintf( status , 124 , "Cannot insert in database.\n");
+		else
+			snprintf( status , 124 , "OK");
+	}
+
+
+	return status;
+}
+
+/* value argument is not used, this argument is here just to use the cli (required 2 unsigned int args ) */
+char *getPair( unsigned int key , unsigned int value )
+{
+	TRACE_2( DB , "getPair( %d , %d ).\n" , key , value );
+
+	int ret = 0;
+	char *status = NULL;
+	int index = 0;
+	struct entry **p = NULL;
+
+	index = getDatabase( "testdb" );
+	p = databases[index]->db;
+
+	status = ( char * )zmalloc( 124 * sizeof( char ) );
+
+	if( !status )
+	{
+		TRACE_ERROR( DB , "Failed to allocate status string.\n");
+	}
+	else
+	{
+		ret = searchDb( "testdb" , key );
+
+		if( ret < 0 )
+			snprintf( status , 124 , "Cannot insert in database.\n");
+		else
+			snprintf( status , 124 , "%d - %d - %x\n" , p[ret]->key , p[ret]->value , p[ret]->hash );
+	}
+
+	return status;
 }

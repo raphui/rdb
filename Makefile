@@ -11,7 +11,8 @@ OBJS := main.o	\
 		utils/thread.o	\
 		utils/trace.o	\
 		utils/zmemory.o	\
-		db.o	
+		db.o	\
+		cli.o	
 
 
 %.o: %.c

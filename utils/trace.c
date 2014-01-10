@@ -31,6 +31,7 @@ typedef struct trace_module
 trace_module trace_modules[] =
 {
     {"DB"			,   TRACE_LEVEL_DEFAULT },
+    {"CLI"			,   TRACE_LEVEL_DEFAULT },
     {"THREAD"       ,   TRACE_LEVEL_DEFAULT },
     {"ZMEMORY"      ,   TRACE_LEVEL_DEFAULT },
 };

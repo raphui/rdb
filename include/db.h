@@ -20,7 +20,7 @@ typedef struct entry
 
 typedef struct database
 {
-	const char *name;
+	char *name;
 	struct entry **db;
 
 }Database;
@@ -30,9 +30,13 @@ typedef struct database
 int createDb( const char *name );
 int destroyDb( const char *name );
 int insertDb( const char *name , int key , int value );
+int searchDb( const char *name , int key );
 void printDb( const char *name );
 void printFullDb( const char *name );
 //void sortAsc( struct entry **a , int n );
 void sortAscDb( const char *name , int n );
+
+char *setPair( unsigned int key , unsigned int value );
+char *getPair( unsigned int key , unsigned int value );
 
 #endif /* DB_H */

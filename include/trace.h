@@ -74,6 +74,7 @@ extern char *levelInfo( void );
 enum {
 
 	DB,
+	CLI,
     THREAD,
     ZMEMORY,
 };
