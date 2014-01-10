@@ -354,7 +354,7 @@ char *getPair( unsigned int key , unsigned int value )
 		ret = searchDb( "testdb" , key );
 
 		if( ret < 0 )
-			snprintf( status , 124 , "Cannot insert in database.\n");
+			snprintf( status , 124 , "Cannot retrieve pair in database.\n");
 		else
 			snprintf( status , 124 , "%d - %d - %x\n" , p[ret]->key , p[ret]->value , p[ret]->hash );
 	}
