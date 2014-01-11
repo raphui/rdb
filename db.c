@@ -160,9 +160,8 @@ int insertDb( const char *name , int key , int value )
 
 	index = 0;
 
-	while( p[index]->hash != 0 )
+	while( p[index]->used != 0 )
 	{
-		p++;
 		index++;
 	}
 
@@ -171,6 +170,7 @@ int insertDb( const char *name , int key , int value )
 	p[index]->key = key;
 	p[index]->value = value;
 	p[index]->hash = hash( key , value );
+	p[index]->used = 1;
 	
 	return ret;
 }
@@ -301,6 +301,60 @@ void sortAscDb( const char *name , int n )
 
 	sortAsc( p , n );
 
+}
+
+char *sort( void )
+{
+	TRACE_2( DB , "sort().\n");
+
+	char *status = NULL;
+
+	status = ( char * )zmalloc( 24 * sizeof( char ) );
+
+	if( !status )
+	{
+		TRACE_ERROR( DB , "Failed to allocate status string.\n");
+	}
+	else
+	{
+		sortAscDb("testdb" , MAX_DB_SIZE );
+
+		snprintf( status , 24 , "OK" );
+	}
+
+	return status;
+}
+
+char *print( void )
+{
+	TRACE_2( DB , "print().\n");
+
+	char *status = NULL;
+	struct entry **p = NULL;
+	int index = 0;
+	int nw = 0;
+
+	index = getDatabase("testdb");
+	p = databases[index]->db;
+
+	status = ( char * )zmalloc( ( MAX_DB_SIZE * sizeof( int ) * 4 ) * sizeof( char ) );
+	
+	index = 0;
+
+	if( !status )
+	{
+		TRACE_ERROR( DB , "Failed to allocate status string.\n");
+	}
+	else
+	{
+		while( index < MAX_DB_SIZE )
+		{
+			nw += sprintf( status + nw , "%d - %d - %x\n" , p[index]->key , p[index]->value , p[index]->hash );
+			index++;
+		}
+	}
+	
+	return status;	
 }
 
 char *setPair( unsigned int key , unsigned int value )

@@ -75,6 +75,7 @@ enum {
 
 	DB,
 	CLI,
+	SERVER,
     THREAD,
     ZMEMORY,
 };

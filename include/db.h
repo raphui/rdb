@@ -15,7 +15,7 @@ typedef struct entry
 	int key;
 	int value;
 	int hash;
-
+	int used;
 }Entry;
 
 typedef struct database
@@ -36,6 +36,8 @@ void printFullDb( const char *name );
 //void sortAsc( struct entry **a , int n );
 void sortAscDb( const char *name , int n );
 
+char *sort( void );
+char *print( void );
 char *setPair( unsigned int key , unsigned int value );
 char *getPair( unsigned int key , unsigned int value );
 

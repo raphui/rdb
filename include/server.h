@@ -1,4 +1,4 @@
-/*  rdb - In-memory database optimized for embedded world
+/*  wMusic - Music system software
  *  Copyright (C) 2013  Raphaël POGGI
  *
  *  This program is free software: you can redistribute it and/or modify
@@ -15,37 +15,45 @@
  *  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef CLI_H
-#define CLI_H
+#ifndef SERVER_H
+#define SERVER_H
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <errno.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <pthread.h>
+#include <signal.h>
+#include <semaphore.h>
+#include <unistd.h>
 
-#include <trace.h>
 #include <types.h>
-#include <zmemory.h>
+#include <trace.h>
 #include <thread.h>
-#include <db.h>
+#include <cli.h>
 
-#define CLI_COUNT_COMMAND       7
-#define SET_CLI_COUNT_COMMAND   3
+#define BUFF_SIZE       1024
+#define MAX_CLIENT      10
+#define PORT_CLI        1339
 
-typedef struct cliCommand
+typedef struct argumentReceivingThread
 {
-    char *command;
-    char *( *func )( void );
+    int socket;
+    int port;
 
-}cliCommand_t;
+}argumentReceivingThread_t;
 
-typedef struct setCliCommand
-{
-    char *command;
-    char *( *func )( unsigned int , unsigned int );
+void launchServer( void );
+void createServer( void *port );
+int closeServer( void );
+void receivingThread( void *arg );
+int disconnectClient( int *socket );
 
-}setCliCommand_t;
+void sendVoid( void *data , size_t size );
+void sendVoidSocket( int socket , void *data , size_t size );
 
-void *doCommand( char *cmd );
+pthread_mutex_t mutex;
 
-#endif /* CLI_H */
+#endif // SERVER_H
+

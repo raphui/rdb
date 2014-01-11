@@ -3,12 +3,20 @@
 
 #include <db.h>
 #include <cli.h>
+#include <server.h>
 
 int main( int argc , char **argv )
 {
 	char command[124] = { 0 };
+	char *opt = NULL;
 
 	createDb("testdb");
+	
+	opt = strtok( argv[1] , "-");
+
+	if( !strcmp( opt , "t") )
+		launchServer();
+	
 //	insertDb( "testdb" , 0x13 , 0x20 );
 //	insertDb( "testdb" , 0x3EF , 0x2344 );
 //	insertDb( "testdb" , 0xFE4F , 0x6576 );
@@ -34,6 +42,7 @@ int main( int argc , char **argv )
 			break;
 		else
 			printf("%s\n" , ( char * )doCommand( command ) );
+
 	}
 
 	return 0;

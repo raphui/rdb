@@ -25,14 +25,16 @@ static cliCommand_t cliCmd[] =
     {"thread_count"     ,   &getThreadCount },
     {"dump_trace_level" ,   &dumpTrace      },
     {"get_level"        ,   &levelInfo      },
-    {"help"             ,   &help           }
+    {"help"             ,   &help           },
+	{"sort"				,	&sort			},
+	{"print"			,	&print			},
 };
 
 static setCliCommand_t setCliCmd[] =
 {
     {"set_trace_level"  ,   &setTraceLevel  },
 	{"set"				,	&setPair		},
-	{"get"				,	&getPair		}
+	{"get"				,	&getPair		},
 };
 
 static char *help( void )
