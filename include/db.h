@@ -16,6 +16,7 @@ typedef struct entry
 	int value;
 	int hash;
 	int used;
+
 }Entry;
 
 typedef struct database
@@ -29,6 +30,7 @@ int createDb( const char *name );
 int destroyDb( const char *name );
 int insertDb( const char *name , int key , int value );
 int searchDb( const char *name , int key );
+int removeDb( const char *name , int key );
 void printDb( const char *name );
 void printFullDb( const char *name );
 
@@ -39,5 +41,6 @@ char *sort( void );
 char *print( void );
 char *setPair( unsigned int key , unsigned int value );
 char *getPair( unsigned int key , unsigned int value );
+char *removePair( unsigned int key , unsigned int value );
 
 #endif /* DB_H */

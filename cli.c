@@ -35,6 +35,7 @@ static setCliCommand_t setCliCmd[] =
     {"set_trace_level"  ,   &setTraceLevel  },
 	{"set"				,	&setPair		},
 	{"get"				,	&getPair		},
+	{"remove"			,	&removePair		},
 };
 
 static char *help( void )
@@ -125,7 +126,7 @@ void *doCommand( char *cmd )
 
         arg1 = atoi( strtok( NULL , " ") );
 
-		if( !strstr( cmd , "get" ) )
+		if( !strstr( cmd , "get" ) && !strstr( cmd , "remove" ) )
 	        arg2 = atoi( strtok( NULL , " ") );
 
         ret = ( void * )setCliCmd[idFuncptr].func( arg1 , arg2 );

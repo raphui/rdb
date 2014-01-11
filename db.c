@@ -203,6 +203,40 @@ int searchDb( const char *name , int key )
 	return ret;
 }
 
+int removeDb( const char *name , int key )
+{
+	TRACE_2( DB , "removeDb( %s , %d ).\n" , name , key );
+
+	int ret = 0;
+	int index = 0;
+	int i = 0;
+	struct entry **p = NULL;
+
+	index = getDatabase( name );
+	p = databases[index]->db;
+
+	for( i = 0 ; i < MAX_DB_SIZE ; i++ )
+	{
+		if( p[i]->key == key )
+		{
+			p[i]->key = 0;
+			p[i]->value = 0;
+			p[i]->hash = 0;
+			p[i]->used = 0;
+
+			ret = 0;
+
+			break;
+		}
+		else
+		{
+			ret = -ENODATA;
+		}
+
+	}
+
+	return ret;
+}
 
 void printDb( const char *name )
 {
@@ -289,7 +323,7 @@ static void sortAsc( struct entry **a , int n )
 
 static void sortDesc( struct entry **a , int n )
 {
-	TRACE_2( DB , "sortAsc( %p , %d )." , a , n );
+	TRACE_2( DB , "sortDesc( %p , %d )." , a , n );
 	
 	if( n < 2 )
 		return;
@@ -449,6 +483,39 @@ char *getPair( unsigned int key , unsigned int value )
 		else
 			snprintf( status , 124 , "%d - %d - %x\n" , p[ret]->key , p[ret]->value , p[ret]->hash );
 	}
+
+	return status;
+}
+
+/* value argument is not used, this argument is here just to use the cli (required 2 unsigned int args ) */
+char *removePair( unsigned int key , unsigned int value )
+{
+	TRACE_2( DB , "removePair( %d , %d ).\n" , key , value );
+
+	int ret = 0;
+	char *status = NULL;
+	int index = 0;
+	struct entry **p = NULL;
+
+	index = getDatabase("testdb");
+	p = databases[index]->db;
+
+	status = ( char * )zmalloc( 124 * sizeof( char ) );
+	
+	if( !status )
+	{
+		TRACE_ERROR( DB , "Failed to allocate status string.\n");
+	}
+	else
+	{
+		ret = removeDb("testdb" , key );
+
+		if( ret < 0 )
+			snprintf( status , 124 , "Cannot remove pair in database.\n");
+		else
+			snprintf( status , 124 , "Removed: %d\n" , key );
+	}
+
 
 	return status;
 }
