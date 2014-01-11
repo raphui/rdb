@@ -19,8 +19,4 @@ for i in range( 1 , 1024 ) :
 	i = i + 1
 	usleep( 100000 );
 
-#s.sendall( ( sys.argv[1] ) )
-
 s.close()
-
-#print 'Sended' , sys.argv[1]

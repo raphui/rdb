@@ -1,7 +1,5 @@
 #include "db.h"
 
-//struct entry **db;
-
 static struct database *databases[MAX_DB_COUNT];
 
 static int crc( int val )
@@ -404,7 +402,7 @@ char *setPair( unsigned int key , unsigned int value )
 	int ret = 0;
 	char *status = NULL;
 
-	ret = insertDb( "testdb" , key , value );
+	ret = insertDb("testdb" , key , value );
 
 	status = ( char * )zmalloc( 124 * sizeof( char ) );
 
@@ -420,7 +418,6 @@ char *setPair( unsigned int key , unsigned int value )
 			snprintf( status , 124 , "OK");
 	}
 
-
 	return status;
 }
 
@@ -434,7 +431,7 @@ char *getPair( unsigned int key , unsigned int value )
 	int index = 0;
 	struct entry **p = NULL;
 
-	index = getDatabase( "testdb" );
+	index = getDatabase("testdb");
 	p = databases[index]->db;
 
 	status = ( char * )zmalloc( 124 * sizeof( char ) );
@@ -445,7 +442,7 @@ char *getPair( unsigned int key , unsigned int value )
 	}
 	else
 	{
-		ret = searchDb( "testdb" , key );
+		ret = searchDb("testdb" , key );
 
 		if( ret < 0 )
 			snprintf( status , 124 , "Cannot retrieve pair in database.\n");

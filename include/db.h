@@ -25,15 +25,13 @@ typedef struct database
 
 }Database;
 
-//extern struct entry **db;
-
 int createDb( const char *name );
 int destroyDb( const char *name );
 int insertDb( const char *name , int key , int value );
 int searchDb( const char *name , int key );
 void printDb( const char *name );
 void printFullDb( const char *name );
-//void sortAsc( struct entry **a , int n );
+
 /* 0 : asc , 1 : desc */
 void sortDb( const char *name , int n , int direction );
 

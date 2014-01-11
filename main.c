@@ -38,7 +38,6 @@ int main( int argc , char **argv )
 	while( 1 )
 	{
 		printf("rdb~>");
-//		scanf("%s" , command );
 		gets( command );
 
 		if( !strcmp("q" , command ) )
