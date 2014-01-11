@@ -8,7 +8,7 @@
 #include <trace.h>
 
 #define MAX_DB_COUNT	3
-#define MAX_DB_SIZE		512
+#define MAX_DB_SIZE		2048
 
 typedef struct entry
 {

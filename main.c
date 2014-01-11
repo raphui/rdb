@@ -11,11 +11,14 @@ int main( int argc , char **argv )
 	char *opt = NULL;
 
 	createDb("testdb");
-	
-	opt = strtok( argv[1] , "-");
 
-	if( !strcmp( opt , "t") )
-		launchServer();
+	if( argc > 0 )
+	{
+		opt = strtok( argv[1] , "-");
+
+		if( !strcmp( opt , "t") )
+			launchServer();
+	}
 	
 //	insertDb( "testdb" , 0x13 , 0x20 );
 //	insertDb( "testdb" , 0x3EF , 0x2344 );

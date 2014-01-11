@@ -13,10 +13,10 @@ s.connect( ( HOST , PORT ) )
 
 usleep = lambda x: time.sleep( x / 1000000.0 );
 
-for i in range( 1 , 248 ) :
+for i in range( 1 , 1024 ) :
 	s.sendall( ('set ' + str( random.randint( 1 , 999999 ) ) + ' ' + str( random.randint( 1 , 999999 ) ) ) )
-	i = i + 1
 	print '{0}: Sended'.format( i )
+	i = i + 1
 	usleep( 100000 );
 
 #s.sendall( ( sys.argv[1] ) )

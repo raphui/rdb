@@ -26,7 +26,11 @@ void *zmalloc( size_t size )
 
     memoryAllocate += size;
 
-    return malloc( size );
+	void *p = malloc( size );
+
+	memset( p , 0 , size );
+
+    return p;
 }
 
 void *zcalloc( size_t count , size_t size )
@@ -35,7 +39,11 @@ void *zcalloc( size_t count , size_t size )
 
     memoryAllocate += size;
 
-    return calloc( count , size );
+	void *p = calloc( count , size );
+
+	memset( p , 0 , count * size );
+
+    return p;
 }
 
 void zfree( void *ptr )
