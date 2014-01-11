@@ -34,7 +34,8 @@ int searchDb( const char *name , int key );
 void printDb( const char *name );
 void printFullDb( const char *name );
 //void sortAsc( struct entry **a , int n );
-void sortAscDb( const char *name , int n );
+/* 0 : asc , 1 : desc */
+void sortDb( const char *name , int n , int direction );
 
 char *sort( void );
 char *print( void );

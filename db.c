@@ -289,7 +289,44 @@ static void sortAsc( struct entry **a , int n )
 	sortAsc( l, a + n - l );
 }
 
-void sortAscDb( const char *name , int n )
+static void sortDesc( struct entry **a , int n )
+{
+	TRACE_2( DB , "sortAsc( %p , %d )." , a , n );
+	
+	if( n < 2 )
+		return;
+
+	int p =  a[n / 2]->key;
+	struct entry **l = a;
+	struct entry **r = a + n - 1;
+	struct entry *t;
+
+	while( l <= r )
+	{
+		TRACE_3( DB , "%p , %p\n" , l , r );
+		TRACE_3( DB , "%x , %x\n" , (*l)->key , (*r)->key );
+
+		if( (*l)->key > p )
+			*l++;
+		else if( (*r)->key < p )
+			*r--;
+		else
+		{
+
+			t = *l;
+			*l++ = *r;
+			*r-- = t;
+		}
+	}
+
+
+	sortDesc( a , r - a + 1 );
+	sortDesc( l, a + n - l );
+}
+
+
+
+void sortDb( const char *name , int n , int direction )
 {
 	TRACE_2( DB , "sortAscDb( %s , %d ).\n" , name , n );
 
@@ -299,7 +336,10 @@ void sortAscDb( const char *name , int n )
 	index = getDatabase( name );
 	p = databases[index]->db;
 
-	sortAsc( p , n );
+	if( direction )
+		sortDesc( p , n );
+	else
+		sortAsc( p , n );
 
 }
 
@@ -317,7 +357,7 @@ char *sort( void )
 	}
 	else
 	{
-		sortAscDb("testdb" , MAX_DB_SIZE );
+		sortDb("testdb" , MAX_DB_SIZE , 0 );
 
 		snprintf( status , 24 , "OK" );
 	}
