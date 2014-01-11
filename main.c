@@ -12,7 +12,7 @@ int main( int argc , char **argv )
 
 	createDb("testdb");
 
-	if( argc > 0 )
+	if( argc > 1 )
 	{
 		opt = strtok( argv[1] , "-");
 
