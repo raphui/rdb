@@ -38,7 +38,7 @@ int main( int argc , char **argv )
 	while( 1 )
 	{
 		printf("rdb~>");
-		gets( command );
+		fgets( command , 124 , stdin );
 
 		if( !strcmp("q" , command ) )
 			break;

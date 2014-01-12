@@ -21,7 +21,7 @@ static int lastRequester;
 static int portCli = PORT_CLI;
 
 //static pthread_t serverStreamerThread;
-static pthread_t serverCommanderThread;
+//static pthread_t serverCommanderThread;
 static pthread_t serverCliThread;
 
 void launchServer( void )
