@@ -1,6 +1,6 @@
 #include "db.h"
 
-static struct database *databases[MAX_DB_COUNT];
+static struct database *db;
 
 static int crc( int val )
 {
@@ -41,76 +41,44 @@ static int hash( int key , int value )
 	return hash;
 }
 
-static int getDatabase( const char *name )
+//static int getDatabase( const char *name )
+//{
+//	TRACE_2( DB , "getDatabase( %s ).\n" , name );
+//
+//	int i = 0;
+//
+//	for( i = 0 ; i < MAX_DB_COUNT ; i++ )
+//	{
+//		if( databases[i] != NULL )
+//			if( databases[i]->name != NULL )
+//				if( !strcmp( databases[i]->name , name ) )
+//					return i;
+//	}
+//
+//	return -ENODATA;
+//}
+
+int createDb( void )
 {
-	TRACE_2( DB , "getDatabase( %s ).\n" , name );
-
-	int i = 0;
-
-	for( i = 0 ; i < MAX_DB_COUNT ; i++ )
-	{
-		if( databases[i] != NULL )
-			if( databases[i]->name != NULL )
-				if( !strcmp( databases[i]->name , name ) )
-					return i;
-	}
-
-	return -ENODATA;
-}
-
-int createDb( const char *name )
-{
-	TRACE_2( DB , "createDb( %s )." , name );
+	TRACE_2( DB , "createDb().");
 
 	int ret = 0;
-	int i = 0;
-	int index = 0;
 
-	for( i = 0 ; i < MAX_DB_COUNT ; i++ )
+	db = ( struct database * )zmalloc( sizeof( struct database ) );
+
+	if( !db )
 	{
-		if( !databases[i] )
-		{
-			index = i;
-			break;
-		}
-	}
-
-	TRACE_1( DB , "Find free index: %d in databases entry.\n" , index );
-
-	databases[index] = ( struct database * )zmalloc( sizeof( struct database ) );
-
-	if( !databases[index] )
-	{
-		TRACE_ERROR( DB , "Failed to allocate database entry.\n");
+		TRACE_ERROR( DB , "Failed to allocate database.\n");
 		ret = -ENOMEM;
 	}
 	else
 	{
-		TRACE_1( DB , "Database: %s has been added to the databases entry.\n" , name );
 
-		databases[index]->name = ( char * )zmalloc( strlen( name ) + 1 * sizeof( char ) );
-		snprintf( databases[index]->name , strlen( name ) + 1 , "%s" , name );
+		TRACE_1( DB , "Initialise database.\n");
 
-		databases[index]->db = ( struct entry ** )zmalloc( MAX_DB_SIZE * sizeof( struct entry ) );
-
-		if( !databases[index]->db )
-		{
-			TRACE_ERROR( DB , "Failed to allocate database.\n");
-			ret = -ENOMEM;
-		}
-		else
-		{
-			TRACE_1( DB , "Database has been allocate.\n");
-	
-			for( i = 0 ; i < MAX_DB_SIZE ; i++ )
-			{
-				databases[index]->db[i] = ( struct entry * )zmalloc( sizeof( struct entry ) );
-				if( !databases[index]->db[i] )
-					printf("Failed to allocate at index: %d\n" , i );
-				else
-					TRACE_3( DB , "%d: %p\n" , i , databases[index]->db[i] );
-			}
-		}
+		db->count = 0;
+		db->head = NULL;
+		db->tail = NULL;
 
 	}
 
@@ -118,262 +86,258 @@ int createDb( const char *name )
 	return ret;
 }
 
-int destroyDb( const char *name )
+int destroyDb( void )
 {
-	TRACE_2( DB , "destroyDb( %s )." , name );
+	TRACE_2( DB , "destroyDb().");
 	
 	int ret = 0;
-	int i = 0;
-	int index;
 
-	index = getDatabase( name );
-
-	if( !databases[index]->db )
+	if( !db )
 	{
 		TRACE_1( DB , "No database has been allocate.\n");
 		ret = -ENXIO;
 	}
 	else
 	{
-		for( i = 0 ; i < MAX_DB_SIZE ; i++ )
-			zfree( databases[index]->db[i] );
 
-		zfree( databases[index]->db );
+		/* TODO: free nodes */
+
+		zfree( db );
 	}
 
 
 	return ret;
 }
 
-int insertDb( const char *name , int key , int value )
+int insertDb( int key , int value )
 {
 	TRACE_2( DB , "insertDb( %d , %d )." , key , value );
 
 	int ret = 0;
-	int index = 0;
-	struct entry **p = NULL;
+	struct entry *e = NULL;
+	struct entry *tmp = NULL;
 
-	index = getDatabase( name );
-	p = databases[index]->db;
-
-	index = 0;
-
-	while( p[index]->used != 0 )
+	if( db->count == 0 )
 	{
-		index++;
-	}
+		TRACE_1( DB , "Database is empty.\n");
 
-	TRACE_1( DB , "Find free index: p( %d ) , index( %d )." , p , index );
+		e = ( struct entry * )zmalloc( sizeof( struct entry ) );
 
-	p[index]->key = key;
-	p[index]->value = value;
-	p[index]->hash = hash( key , value );
-	p[index]->used = 1;
-	
-	return ret;
-}
-
-
-int searchDb( const char *name , int key )
-{
-	TRACE_2( DB , "searchDb( %s , %d ).\n" , name , key );
-
-	int ret = -ENODATA;
-	int index = 0;
-	int i = 0;
-	struct entry **p = NULL;
-
-	index = getDatabase( name );
-	p = databases[index]->db;
-
-	for( i = 0 ; i < MAX_DB_SIZE ; i++ )
-	{
-		if( p[i]->key == key )
+		if( !e )
 		{
-			/* Perform a hash, to check data integrity */
-			if( p[i]->hash == hash( key , p[i]->value ) )
+			TRACE_ERROR( DB , "Failed to allocate a new node.\n");
+			ret = -ENOMEM;
+		}
+		else
+		{
+			e->key = key;
+			e->value = value;
+			e->hash = hash( key , value );
+			e->used = 1;
+
+			TRACE_1( DB , "Add node in database.\n");
+
+			tmp = db->tail;
+
+			if( !tmp )
 			{
-				TRACE_1( DB , "Pair has been finded !\n");
-				ret = i;
-				break;
+				TRACE_ERROR( DB , "Database has no tail !!!!\n");
+				tmp = e;
+
+				if( !db->head )
+					db->head = tmp;
+//				ret = -ENODATA;
+				e->prev = NULL;
+				e->next = NULL;
+			}
+			else
+			{
+				tmp->next = e;
+				e->prev = tmp;
+				e->next = NULL;
 			}
 		}
 	}
+	
+	
+	return ret;
+}
+
+
+struct entry *searchDb( int key )
+{
+	TRACE_2( DB , "searchDb( %d ).\n" , key );
+
+	struct entry *ret = NULL;
+	struct entry *tmp = NULL;
+
+	tmp = db->head;
+
+	if( !tmp )
+	{
+		TRACE_ERROR( DB , "Database has no head !!!!\n");
+		
+		ret = NULL;
+	}
+	else
+	{
+		do
+		{
+			if( tmp->key == key )
+			{
+				if( tmp->hash == hash( key , tmp->value ) )
+				{
+					ret = tmp;
+					break;
+				}
+			}
+
+			tmp = tmp->next;
+		}while( tmp->next );
+	}
+	
+	if( !ret )
+		TRACE_1( DB , "No pair with key ( %d ) has been found !\n" , key );
 
 	return ret;
 }
 
-int removeDb( const char *name , int key )
+int removeDb( int key )
 {
-	TRACE_2( DB , "removeDb( %s , %d ).\n" , name , key );
+	TRACE_2( DB , "removeDb( %d ).\n" , key );
 
 	int ret = 0;
-	int index = 0;
-	int i = 0;
-	struct entry **p = NULL;
+	struct entry *tmp = NULL;
+	struct entry *p = NULL;
 
-	index = getDatabase( name );
-	p = databases[index]->db;
 
-	for( i = 0 ; i < MAX_DB_SIZE ; i++ )
+	tmp = db->head;
+
+	if( !tmp )
 	{
-		if( p[i]->key == key )
-		{
-			p[i]->key = 0;
-			p[i]->value = 0;
-			p[i]->hash = 0;
-			p[i]->used = 0;
-
-			ret = 0;
-
-			break;
-		}
-		else
-		{
-			ret = -ENODATA;
-		}
-
+		TRACE_ERROR( DB , "Database has no head !!!\n");
+		ret = -ENODATA;
 	}
+	else
+	{
+		do
+		{
+			if( tmp->key == key )
+			{
+				p = tmp->prev;
+				p->next = tmp->next;
+				
+				p = tmp->next;
+				p->prev = tmp->prev;
+
+				zfree( tmp );
+				ret = 0;
+				break;
+			}
+			else
+			{
+				ret = -ENODATA;
+			}
+		
+			tmp = tmp->next;
+
+		}while( tmp->next );
+	}
+
+	if( ret < 0 )
+		TRACE_1( DB , "No pair with key ( %d ) has been found, so nothing has been removed.\n" , key );
 
 	return ret;
 }
 
-void printDb( const char *name )
-{
-	TRACE_2( DB , "printDb().");
+//static void sortAsc( struct entry **a , int n )
+//{
+//	TRACE_2( DB , "sortAsc( %p , %d )." , a , n );
+//	
+//	if( n < 2 )
+//		return;
+//
+//	int p =  a[n / 2]->key;
+//	struct entry **l = a;
+//	struct entry **r = a + n - 1;
+//	struct entry *t;
+//
+//	while( l <= r )
+//	{
+//		TRACE_3( DB , "%p , %p\n" , l , r );
+//		TRACE_3( DB , "%x , %x\n" , (*l)->key , (*r)->key );
+//
+//		if( (*l)->key < p )
+//			*l++;
+//		else if( (*r)->key > p )
+//			*r--;
+//		else
+//		{
+//
+//			t = *l;
+//			*l++ = *r;
+//			*r-- = t;
+//		}
+//	}
+//
+//
+//	sortAsc( a , r - a + 1 );
+//	sortAsc( l, a + n - l );
+//}
 
-	struct entry **p = NULL;
-	int index = 0;
-
-	index = getDatabase( name );
-	p = databases[index]->db;
-
-	printf("|\tKey\t|\tValue\t|\tHash\t|\n");
-
-	while( p[index]->hash != 0 )
-	{
-		printf("|\t0x%x\t" , p[index]->key );
-		printf("|\t0x%x\t" , p[index]->value );
-		printf("|\t0x%x\t" , p[index]->hash );
-		printf("|\n");
-		index++;
-	}
-	
-}
-
-void printFullDb( const char *name )
-{
-	TRACE_2( DB , "printFullDb().");
-
-	struct entry **p = NULL;
-	int index = 0;
-
-	index = getDatabase( name );
-	p = databases[index]->db;
-
-	printf("|\tKey\t|\tValue\t|\tHash\t|\n");
-
-	while( index < MAX_DB_SIZE )
-	{
-		TRACE_3( DB , "%d: %p , %p %p\n" , index , p , *p );
-
-		printf("|\t0x%x\t" , p[index]->key );
-		printf("|\t0x%x\t" , p[index]->value );
-		printf("|\t0x%x\t" , p[index]->hash );
-		printf("|\n");
-		index++;
-	}
-	
-}
-
-static void sortAsc( struct entry **a , int n )
-{
-	TRACE_2( DB , "sortAsc( %p , %d )." , a , n );
-	
-	if( n < 2 )
-		return;
-
-	int p =  a[n / 2]->key;
-	struct entry **l = a;
-	struct entry **r = a + n - 1;
-	struct entry *t;
-
-	while( l <= r )
-	{
-		TRACE_3( DB , "%p , %p\n" , l , r );
-		TRACE_3( DB , "%x , %x\n" , (*l)->key , (*r)->key );
-
-		if( (*l)->key < p )
-			*l++;
-		else if( (*r)->key > p )
-			*r--;
-		else
-		{
-
-			t = *l;
-			*l++ = *r;
-			*r-- = t;
-		}
-	}
-
-
-	sortAsc( a , r - a + 1 );
-	sortAsc( l, a + n - l );
-}
-
-static void sortDesc( struct entry **a , int n )
-{
-	TRACE_2( DB , "sortDesc( %p , %d )." , a , n );
-	
-	if( n < 2 )
-		return;
-
-	int p =  a[n / 2]->key;
-	struct entry **l = a;
-	struct entry **r = a + n - 1;
-	struct entry *t;
-
-	while( l <= r )
-	{
-		TRACE_3( DB , "%p , %p\n" , l , r );
-		TRACE_3( DB , "%x , %x\n" , (*l)->key , (*r)->key );
-
-		if( (*l)->key > p )
-			*l++;
-		else if( (*r)->key < p )
-			*r--;
-		else
-		{
-
-			t = *l;
-			*l++ = *r;
-			*r-- = t;
-		}
-	}
-
-
-	sortDesc( a , r - a + 1 );
-	sortDesc( l, a + n - l );
-}
+//static void sortDesc( struct entry **a , int n )
+//{
+//	TRACE_2( DB , "sortDesc( %p , %d )." , a , n );
+//	
+//	if( n < 2 )
+//		return;
+//
+//	int p =  a[n / 2]->key;
+//	struct entry **l = a;
+//	struct entry **r = a + n - 1;
+//	struct entry *t;
+//
+//	while( l <= r )
+//	{
+//		TRACE_3( DB , "%p , %p\n" , l , r );
+//		TRACE_3( DB , "%x , %x\n" , (*l)->key , (*r)->key );
+//
+//		if( (*l)->key > p )
+//			*l++;
+//		else if( (*r)->key < p )
+//			*r--;
+//		else
+//		{
+//
+//			t = *l;
+//			*l++ = *r;
+//			*r-- = t;
+//		}
+//	}
+//
+//
+//	sortDesc( a , r - a + 1 );
+//	sortDesc( l, a + n - l );
+//}
 
 
 
-void sortDb( const char *name , int n , int direction )
-{
-	TRACE_2( DB , "sortAscDb( %s , %d ).\n" , name , n );
-
-	int index;
-	struct entry **p = NULL;
-
-	index = getDatabase( name );
-	p = databases[index]->db;
-
-	if( direction )
-		sortDesc( p , n );
-	else
-		sortAsc( p , n );
-
-}
+//void sortDb( const char *name , int n , int direction )
+//{
+//	TRACE_2( DB , "sortAscDb( %s , %d ).\n" , name , n );
+//
+//	int index;
+//	struct entry **p = NULL;
+//
+//	index = getDatabase( name );
+//	p = databases[index]->db;
+//
+//	if( direction )
+//		sortDesc( p , n );
+//	else
+//		sortAsc( p , n );
+//
+//}
 
 char *sort( void )
 {
@@ -389,7 +353,7 @@ char *sort( void )
 	}
 	else
 	{
-		sortDb("testdb" , MAX_DB_SIZE , 0 );
+//		sortDb("testdb" , MAX_DB_SIZE , 0 );
 
 		snprintf( status , 24 , "OK" );
 	}
@@ -402,16 +366,11 @@ char *print( void )
 	TRACE_2( DB , "print().\n");
 
 	char *status = NULL;
-	struct entry **p = NULL;
-	int index = 0;
+	struct entry *tmp = NULL;
 	int nw = 0;
-
-	index = getDatabase("testdb");
-	p = databases[index]->db;
 
 	status = ( char * )zmalloc( ( MAX_DB_SIZE * sizeof( int ) * 4 ) * sizeof( char ) );
 	
-	index = 0;
 
 	if( !status )
 	{
@@ -419,10 +378,20 @@ char *print( void )
 	}
 	else
 	{
-		while( index < MAX_DB_SIZE )
+		tmp = db->head;
+
+		if( !tmp )
 		{
-			nw += sprintf( status + nw , "%d - %d - %x\n" , p[index]->key , p[index]->value , p[index]->hash );
-			index++;
+			TRACE_ERROR( DB , "Database has no head !!!\n");
+			sprintf( status , "Error: database has no head.\n");
+		}
+		else
+		{
+			while( tmp->next )
+			{
+				nw += sprintf( status + nw , "%d - %d - %x\n" , tmp->key , tmp->value , tmp->hash );
+				tmp = tmp->next;
+			}
 		}
 	}
 	
@@ -436,7 +405,7 @@ char *setPair( unsigned int key , unsigned int value )
 	int ret = 0;
 	char *status = NULL;
 
-	ret = insertDb("testdb" , key , value );
+	ret = insertDb( key , value );
 
 	status = ( char * )zmalloc( 124 * sizeof( char ) );
 
@@ -460,13 +429,8 @@ char *getPair( unsigned int key , unsigned int value )
 {
 	TRACE_2( DB , "getPair( %d , %d ).\n" , key , value );
 
-	int ret = 0;
+	struct entry *ret = NULL;
 	char *status = NULL;
-	int index = 0;
-	struct entry **p = NULL;
-
-	index = getDatabase("testdb");
-	p = databases[index]->db;
 
 	status = ( char * )zmalloc( 124 * sizeof( char ) );
 
@@ -476,12 +440,12 @@ char *getPair( unsigned int key , unsigned int value )
 	}
 	else
 	{
-		ret = searchDb("testdb" , key );
+		ret = searchDb( key );
 
-		if( ret < 0 )
+		if( !ret )
 			snprintf( status , 124 , "Cannot retrieve pair in database.\n");
 		else
-			snprintf( status , 124 , "%d - %d - %x\n" , p[ret]->key , p[ret]->value , p[ret]->hash );
+			snprintf( status , 124 , "%d - %d - %x\n" , ret->key , ret->value , ret->hash );
 	}
 
 	return status;
@@ -494,11 +458,6 @@ char *removePair( unsigned int key , unsigned int value )
 
 	int ret = 0;
 	char *status = NULL;
-	int index = 0;
-	struct entry **p = NULL;
-
-	index = getDatabase("testdb");
-	p = databases[index]->db;
 
 	status = ( char * )zmalloc( 124 * sizeof( char ) );
 	
@@ -508,7 +467,7 @@ char *removePair( unsigned int key , unsigned int value )
 	}
 	else
 	{
-		ret = removeDb("testdb" , key );
+		ret = removeDb( key );
 
 		if( ret < 0 )
 			snprintf( status , 124 , "Cannot remove pair in database.\n");

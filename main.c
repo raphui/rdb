@@ -10,7 +10,7 @@ int main( int argc , char **argv )
 	char command[124] = { 0 };
 	char *opt = NULL;
 
-	createDb("testdb");
+	createDb();
 
 	if( argc > 1 )
 	{
