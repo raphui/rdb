@@ -139,24 +139,48 @@ int insertDb( int key , int value )
 
 			tmp = db->tail;
 
-			if( !tmp )
-			{
-				TRACE_ERROR( DB , "Database has no tail !!!!\n");
-				tmp = e;
+			tmp = e;
 
-				if( !db->head )
-					db->head = tmp;
-//				ret = -ENODATA;
-				e->prev = NULL;
-				e->next = NULL;
-			}
-			else
-			{
-				tmp->next = e;
-				e->prev = tmp;
-				e->next = NULL;
-			}
+			db->head = tmp;
+			db->tail = tmp;
+			db->count++;
+			e->prev = NULL;
+			e->next = NULL;
+
 		}
+	}
+	else
+	{
+		e = ( struct entry * )zmalloc( sizeof( struct entry ) );
+
+		if( !e )
+		{
+			TRACE_ERROR( DB , "Failed to allocate a new node.\n");
+			ret = -ENOMEM;
+		}
+		else
+		{
+
+			TRACE_1( DB , "Add node in database.\n");
+
+			tmp = db->tail;
+
+			e->key = key;
+			e->value = value;
+			e->hash = hash( key , value );	
+			e->used = 1;
+
+			TRACE_1( DB , "Add node in database.\n");
+
+			tmp = db->tail;
+			tmp->next = e;
+			e->prev = tmp;
+			e->next = NULL;
+
+			db->tail = e;
+			db->count++;
+		}
+
 	}
 	
 	
@@ -175,7 +199,7 @@ struct entry *searchDb( int key )
 
 	if( !tmp )
 	{
-		TRACE_ERROR( DB , "Database has no head !!!!\n");
+		TRACE_WARNING( DB , "Database has no head !!!!\n");
 		
 		ret = NULL;
 	}
@@ -215,7 +239,7 @@ int removeDb( int key )
 
 	if( !tmp )
 	{
-		TRACE_ERROR( DB , "Database has no head !!!\n");
+		TRACE_WARNING( DB , "Database has no head !!!\n");
 		ret = -ENODATA;
 	}
 	else
@@ -224,11 +248,20 @@ int removeDb( int key )
 		{
 			if( tmp->key == key )
 			{
-				p = tmp->prev;
-				p->next = tmp->next;
+
+				if( tmp->prev && tmp->next )
+				{
+					p = tmp->prev;
+					p->next = tmp->next;
 				
-				p = tmp->next;
-				p->prev = tmp->prev;
+					p = tmp->next;
+					p->prev = tmp->prev;
+				}
+				else
+				{
+					db->head = NULL;
+					db->tail = NULL;
+				}
 
 				zfree( tmp );
 				ret = 0;
@@ -368,8 +401,9 @@ char *print( void )
 	char *status = NULL;
 	struct entry *tmp = NULL;
 	int nw = 0;
+	int i = 0;
 
-	status = ( char * )zmalloc( ( MAX_DB_SIZE * sizeof( int ) * 4 ) * sizeof( char ) );
+	status = ( char * )zmalloc( ( db->count * sizeof( int ) * 4 ) * sizeof( char ) );
 	
 
 	if( !status )
@@ -382,16 +416,21 @@ char *print( void )
 
 		if( !tmp )
 		{
-			TRACE_ERROR( DB , "Database has no head !!!\n");
+			TRACE_WARNING( DB , "Database has no head !!!\n");
 			sprintf( status , "Error: database has no head.\n");
 		}
 		else
 		{
-			while( tmp->next )
+			for( i = 0 ; i < db->count ; i++ )
 			{
+				if( !tmp )
+					break;
+
 				nw += sprintf( status + nw , "%d - %d - %x\n" , tmp->key , tmp->value , tmp->hash );
+
 				tmp = tmp->next;
 			}
+
 		}
 	}
 	
