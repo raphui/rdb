@@ -8,6 +8,7 @@ DEBUGFLAGS_C-Compiler := -g -O0 -fno-omit-frame-pointer -pipe -Wall
 LIBS := -lpthread
 
 OBJS := main.o	\
+		utils/common.o	\
 		utils/thread.o	\
 		utils/trace.o	\
 		utils/zmemory.o	\

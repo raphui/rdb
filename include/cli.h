@@ -28,23 +28,16 @@
 #include <zmemory.h>
 #include <thread.h>
 #include <db.h>
+#include <common.h>
 
-#define CLI_COUNT_COMMAND       7
-#define SET_CLI_COUNT_COMMAND   4
+#define CLI_COUNT_COMMAND       11
 
 typedef struct cliCommand
 {
     char *command;
-    char *( *func )( void );
+    char *( *func )( struct environment *env );
 
 }cliCommand_t;
-
-typedef struct setCliCommand
-{
-    char *command;
-    char *( *func )( unsigned int , unsigned int );
-
-}setCliCommand_t;
 
 void *doCommand( char *cmd );
 

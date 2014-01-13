@@ -22,10 +22,12 @@
 #include <stdlib.h>
 
 #include <trace.h>
+#include <common.h>
 
 void *zmalloc( size_t size );
 void *zcalloc( size_t count , size_t size );
 void zfree( void *ptr );
-char *getMemoryCount( void );
+
+char *getMemoryCount( struct environment *env );
 
 #endif /* ZMALLOC_H */

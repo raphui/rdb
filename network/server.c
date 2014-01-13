@@ -119,7 +119,7 @@ void receivingThread( void *arg )
     char buff[BUFF_SIZE];
     char input[] = "rdb_remote~>";
     int ret;
-    int info;
+//    int info;
     void *cliRet;
 
     argumentReceivingThread_t *arguments = ( argumentReceivingThread_t * )arg;

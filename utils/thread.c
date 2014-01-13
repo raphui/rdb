@@ -48,7 +48,7 @@ void incrementThreadCount( int n )
     countThreads += n;
 }
 
-char *getThreadCount( void )
+char *getThreadCount( struct environment *env )
 {
     TRACE_2( THREAD , "getThreadCount().");
 
@@ -56,7 +56,9 @@ char *getThreadCount( void )
 
     memset( buff , 0 , 40 );
 
-    sprintf( buff , "Total thread running : %d\n" , countThreads );
+	env->countThreads = countThreads;
+
+    sprintf( buff , "Total thread running : %d\n" , env->countThreads );
 
     return buff;
 }

@@ -66,7 +66,7 @@ void zfree( void *ptr )
     free( ptr );
 }
 
-char *getMemoryCount( void )
+char *getMemoryCount( struct environment *env )
 {
     TRACE_2( ZMEMORY , "getMemoryCount().");
 
@@ -74,9 +74,12 @@ char *getMemoryCount( void )
 
     memset( buff , 0 , 248 );
 
-    sprintf( buff , "Total memory allocate : %d\n" , memoryAllocate );
-    sprintf( buff + strlen( buff ), "Total memory free : %d\n" , memoryFree );
-    sprintf( buff + strlen( buff ), "Current memory allocate : %d\n" , memoryAllocate - memoryFree );
+	env->memoryAllocate = memoryAllocate;
+	env->memoryFree = memoryFree;
+
+    sprintf( buff , "Total memory allocate : %d\n" , env->memoryAllocate );
+    sprintf( buff + strlen( buff ), "Total memory free : %d\n" , env->memoryFree );
+    sprintf( buff + strlen( buff ), "Current memory allocate : %d\n" , env->memoryAllocate - env->memoryFree );
 
     return buff;
 }

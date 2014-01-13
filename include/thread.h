@@ -29,10 +29,11 @@
 #include <types.h>
 #include <trace.h>
 #include <zmemory.h>
+#include <common.h>
 
 void createThread( void *routine , void *arg );
 void incrementThreadCount( int n );
-char *getThreadCount( void );
+char *getThreadCount( struct environment *env );
 void releaseThread( void );
 
 #endif /* THREAD_H */

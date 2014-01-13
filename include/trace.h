@@ -28,8 +28,9 @@
 #include <time.h>
 
 #include <zmemory.h>
+#include <common.h>
 
-#define MODULE_COUNT    17
+#define MODULE_COUNT    6
 
 #define TRACE_LEVEL_ERR    ( 1 << 0 )
 #define TRACE_LEVEL_WARN   ( 1 << 1 )
@@ -67,14 +68,16 @@ extern void Traces_printOnly( unsigned int level, unsigned int module, const cha
 //extern void HTraces_print( unsigned int level, unsigned int module, const char *file , const int *line , const char *function, const char *format, ... );
 extern void Traces_print( const char *file , const int line , const char *function , unsigned int level , unsigned int module ,  const char *format , ... );
 extern int Traces_enable( unsigned int module , unsigned int level );
-extern char *setTraceLevel( unsigned int module , unsigned int level );
-extern char *dumpTrace( void );
-extern char *levelInfo( void );
+
+extern char *setTraceLevel( struct environment *env );
+extern char *dumpTrace( struct environment *env );
+extern char *levelInfo( struct environment *env );
 
 enum {
 
 	DB,
 	CLI,
+	COMMON,
 	SERVER,
     THREAD,
     ZMEMORY,

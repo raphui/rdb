@@ -30,11 +30,12 @@ typedef struct trace_module
 
 trace_module trace_modules[] =
 {
-    {"DB"			,   TRACE_LEVEL_DEFAULT },
-    {"CLI"			,   TRACE_LEVEL_DEFAULT },
-	{"SERVER"		,	TRACE_LEVEL_DEFAULT },
-    {"THREAD"       ,   TRACE_LEVEL_DEFAULT },
-    {"ZMEMORY"      ,   TRACE_LEVEL_DEFAULT },
+    {"DB"			,   TRACE_LEVEL_ALL },
+    {"CLI"			,   TRACE_LEVEL_ALL },
+    {"COMMON"		,   TRACE_LEVEL_ALL },
+	{"SERVER"		,	TRACE_LEVEL_ALL },
+    {"THREAD"       ,   TRACE_LEVEL_ALL },
+    {"ZMEMORY"      ,   TRACE_LEVEL_ALL },
 };
 
 void Traces_printOnly(unsigned int level, unsigned int module, const char *function, const char *format, ...)
@@ -117,13 +118,14 @@ int Traces_enable(unsigned int module, unsigned int level )
 }
 
 
-char *setTraceLevel( unsigned int module , unsigned int level )
+char *setTraceLevel( struct environment *env )
 {
-//    char *buff = ( char * )zmalloc( 248 * sizeof( char ) );
-
-//    memset( buff , 0 , 248 );
-
+	unsigned int module;
+	unsigned int level;
     char *buff = ( char * )zcalloc( 248 , sizeof( char ) );
+
+	module = env->genericVal[0];
+	level = env->genericVal[1];
 
     if( module >= MODULE_COUNT )
     {
@@ -169,7 +171,7 @@ static char *traceLevelToChar( unsigned int level )
     return "UNKNOWN";
 }
 
-char *dumpTrace( void )
+char *dumpTrace( struct environment *env )
 {
     char *buff = ( char * )zmalloc( 1024 * sizeof( char ) );
 
@@ -186,7 +188,7 @@ char *dumpTrace( void )
     return buff;
 }
 
-char *levelInfo( void )
+char *levelInfo( struct environment *env )
 {
     char *buff = ( char * )zmalloc( 1024 * sizeof( char ) );
 

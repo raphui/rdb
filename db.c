@@ -217,7 +217,7 @@ struct entry *searchDb( int key )
 			}
 
 			tmp = tmp->next;
-		}while( tmp->next );
+		}while( tmp );
 	}
 	
 	if( !ret )
@@ -249,7 +249,7 @@ int removeDb( int key )
 			if( tmp->key == key )
 			{
 
-				if( tmp->prev && tmp->next )
+				if( tmp->prev && tmp->next ) /* Removing node in the middle of list */
 				{
 					p = tmp->prev;
 					p->next = tmp->next;
@@ -257,10 +257,15 @@ int removeDb( int key )
 					p = tmp->next;
 					p->prev = tmp->prev;
 				}
-				else
+				else if( !tmp->prev ) /* Removing head node */
 				{
-					db->head = NULL;
-					db->tail = NULL;
+					db->head = tmp->next;
+					db->head->prev = NULL;
+				}
+				else if( !tmp->next ) /* Removing tail node */
+				{
+					db->tail = tmp->prev;
+					db->tail->next = NULL;
 				}
 
 				zfree( tmp );
@@ -274,7 +279,7 @@ int removeDb( int key )
 		
 			tmp = tmp->next;
 
-		}while( tmp->next );
+		}while( tmp );
 	}
 
 	if( ret < 0 )
@@ -372,7 +377,7 @@ int removeDb( int key )
 //
 //}
 
-char *sort( void )
+char *sort( struct environment *env )
 {
 	TRACE_2( DB , "sort().\n");
 
@@ -394,7 +399,7 @@ char *sort( void )
 	return status;
 }
 
-char *print( void )
+char *print( struct environment *env )
 {
 	TRACE_2( DB , "print().\n");
 
@@ -437,12 +442,17 @@ char *print( void )
 	return status;	
 }
 
-char *setPair( unsigned int key , unsigned int value )
+char *setPair( struct environment *env )
 {
-	TRACE_2( DB , "setPair( %d , %d ).\n" , key , value );
+	TRACE_2( DB , "setPair( %d , %d ).\n" , env->genericVal[0] , env->genericVal[1] );
 
 	int ret = 0;
 	char *status = NULL;
+	unsigned int key;
+	unsigned int value;
+
+	key = env->genericVal[0];
+	value = env->genericVal[1];
 
 	ret = insertDb( key , value );
 
@@ -464,12 +474,15 @@ char *setPair( unsigned int key , unsigned int value )
 }
 
 /* value argument is not used, this argument is here just to use the cli (required 2 unsigned int args ) */
-char *getPair( unsigned int key , unsigned int value )
+char *getPair( struct environment *env )
 {
-	TRACE_2( DB , "getPair( %d , %d ).\n" , key , value );
+	TRACE_2( DB , "getPair( %d ).\n" , env->genericVal[0] );
 
 	struct entry *ret = NULL;
 	char *status = NULL;
+	unsigned int key;
+
+	key = env->genericVal[0];
 
 	status = ( char * )zmalloc( 124 * sizeof( char ) );
 
@@ -491,12 +504,15 @@ char *getPair( unsigned int key , unsigned int value )
 }
 
 /* value argument is not used, this argument is here just to use the cli (required 2 unsigned int args ) */
-char *removePair( unsigned int key , unsigned int value )
+char *removePair( struct environment *env )
 {
-	TRACE_2( DB , "removePair( %d , %d ).\n" , key , value );
+	TRACE_2( DB , "removePair( %d ).\n" , env->genericVal[0] );
 
 	int ret = 0;
 	char *status = NULL;
+	unsigned int key;
+
+	key = env->genericVal[0];
 
 	status = ( char * )zmalloc( 124 * sizeof( char ) );
 	

@@ -17,7 +17,7 @@
 
 #include "cli.h"
 
-static char *help( void );
+static char *help( struct environment *env );
 
 static cliCommand_t cliCmd[] =
 {
@@ -28,17 +28,13 @@ static cliCommand_t cliCmd[] =
     {"help"             ,   &help           },
 	{"sort"				,	&sort			},
 	{"print"			,	&print			},
-};
-
-static setCliCommand_t setCliCmd[] =
-{
     {"set_trace_level"  ,   &setTraceLevel  },
 	{"set"				,	&setPair		},
 	{"get"				,	&getPair		},
 	{"remove"			,	&removePair		},
 };
 
-static char *help( void )
+static char *help( struct environment *env )
 {
     TRACE_2( CLI , "help().");
 
@@ -49,9 +45,6 @@ static char *help( void )
 
     for( i = 0 ; i < CLI_COUNT_COMMAND ; i++ )
         sprintf( buff + strlen( buff ) , "%s\n" ,  cliCmd[i].command );
-
-    for( i = 0 ; i < SET_CLI_COUNT_COMMAND ; i++ )
-        sprintf( buff + strlen( buff ) , "%s\n" ,  setCliCmd[i].command );
 
     return buff;
 }
@@ -75,61 +68,37 @@ static int searchCliCmd( const char *cmd )
     return -EINVAL;
 }
 
-static int searchSetCliCmd( const char *cmd )
-{
-    TRACE_2( CLI , "searchSetCliCmd( %s )." , cmd );
-
-    int i = 0;
-
-    for( i = 0 ; i < SET_CLI_COUNT_COMMAND ; i++ )
-    {
-        if( strstr( cmd , setCliCmd[i].command ) != NULL )
-        {
-            TRACE_1( CLI , "Command found, id: %d" , i );
-
-            return i;
-        }
-    }
-
-    return -EINVAL;
-}
-
-
 void *doCommand( char *cmd )
 {
     TRACE_2( CLI , "doCommand( %s )." , cmd );
 
+	int i = 0;	
     int idFuncptr;
-    unsigned int arg1;
-    unsigned int arg2;
     void *ret = NULL;
+	char *ptr = NULL;
 
     /* Dynamic allocation, because after send the response throught the socket, free() is called. (If it's declare like -char errorMsg[]="zedze"- this will crash for sure.) */
     char *errorMsg = ( char * )zmalloc( 28 * sizeof( char ) );
 
     memset( errorMsg , 0 , 28 );
 
-    if( ( strstr( cmd , "set_") == NULL )
-            && ( ( idFuncptr = searchCliCmd( cmd ) ) >= 0 ) )
+	ptr = strtok( cmd , " ");
+
+	for( i = 0 ; i < MAX_GENERIC_VAL ; i++ )
+	{
+		ptr = strtok( NULL , " " );
+		
+		if( !ptr )
+			break;
+
+		env->genericVal[i] = ( unsigned int )atoi( ptr );
+	}
+
+    if( ( idFuncptr = searchCliCmd( cmd ) ) >= 0 )
     {
         TRACE_3( CLI , "Execute function.");
 
-        ret = ( void * )cliCmd[idFuncptr].func();
-
-        TRACE_1( CLI , "Function return: %d" , ret );
-    }
-    else if( ( idFuncptr = searchSetCliCmd( cmd ) ) >= 0 )
-    {
-        TRACE_3( CLI , "Execute function.");
-
-        strtok( cmd , " ");
-
-        arg1 = atoi( strtok( NULL , " ") );
-
-		if( !strstr( cmd , "get" ) && !strstr( cmd , "remove" ) )
-	        arg2 = atoi( strtok( NULL , " ") );
-
-        ret = ( void * )setCliCmd[idFuncptr].func( arg1 , arg2 );
+        ret = ( void * )cliCmd[idFuncptr].func( env );
 
         TRACE_1( CLI , "Function return: %d" , ret );
     }
