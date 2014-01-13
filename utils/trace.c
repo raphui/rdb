@@ -30,12 +30,12 @@ typedef struct trace_module
 
 trace_module trace_modules[] =
 {
-    {"DB"			,   TRACE_LEVEL_ALL },
-    {"CLI"			,   TRACE_LEVEL_ALL },
-    {"COMMON"		,   TRACE_LEVEL_ALL },
-	{"SERVER"		,	TRACE_LEVEL_ALL },
-    {"THREAD"       ,   TRACE_LEVEL_ALL },
-    {"ZMEMORY"      ,   TRACE_LEVEL_ALL },
+    {"DB"			,   TRACE_LEVEL_DEFAULT },
+    {"CLI"			,   TRACE_LEVEL_DEFAULT },
+    {"COMMON"		,   TRACE_LEVEL_DEFAULT },
+	{"SERVER"		,	TRACE_LEVEL_DEFAULT },
+    {"THREAD"       ,   TRACE_LEVEL_DEFAULT },
+    {"ZMEMORY"      ,   TRACE_LEVEL_DEFAULT },
 };
 
 void Traces_printOnly(unsigned int level, unsigned int module, const char *function, const char *format, ...)
