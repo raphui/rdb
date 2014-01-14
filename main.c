@@ -5,12 +5,14 @@
 #include <cli.h>
 #include <server.h>
 #include <common.h>
+#include <zmemory.h>
 
 int main( int argc , char **argv )
 {
 	char command[124] = { 0 };
 	char *opt = NULL;
 	int ret = 0;
+	char *status = NULL;
 
 	ret = initEnvironment();
 
@@ -36,7 +38,19 @@ int main( int argc , char **argv )
 		if( !strcmp("q\n" , command ) )
 			break;
 		else
-			printf("%s\n" , ( char * )doCommand( command ) );
+		{
+			status = doCommand( command );
+			
+			if( !status )
+				printf("An error occurs.\n");
+			else
+			{
+				printf("%s\n" , status );
+				zfree( status );
+			}
+
+			
+		}
 
 	}
 

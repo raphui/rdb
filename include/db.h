@@ -37,6 +37,7 @@ int insertDb( int key , int value );
 //int searchDb( int key );
 struct entry *searchDb( int key );
 int removeDb( int key );
+int flushDb( void );
 
 /* 0 : asc , 1 : desc */
 //void sortDb( const char *name , int n , int direction );
@@ -46,5 +47,6 @@ char *print( struct environment *env );
 char *setPair( struct environment *env );
 char *getPair( struct environment *env );
 char *removePair( struct environment *env );
+char *flush( struct environment *env );
 
 #endif /* DB_H */

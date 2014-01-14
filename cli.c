@@ -32,6 +32,7 @@ static cliCommand_t cliCmd[] =
 	{"set"				,	&setPair		},
 	{"get"				,	&getPair		},
 	{"remove"			,	&removePair		},
+	{"flush"			,	&flush			},
 };
 
 static char *help( struct environment *env )
@@ -83,6 +84,8 @@ void *doCommand( char *cmd )
     memset( errorMsg , 0 , 28 );
 
 	ptr = strtok( cmd , " ");
+
+	env->arg_count = 0;
 
 	for( i = 0 ; i < MAX_GENERIC_VAL ; i++ )
 	{

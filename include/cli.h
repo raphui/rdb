@@ -30,7 +30,7 @@
 #include <db.h>
 #include <common.h>
 
-#define CLI_COUNT_COMMAND       11
+#define CLI_COUNT_COMMAND       12
 
 typedef struct cliCommand
 {

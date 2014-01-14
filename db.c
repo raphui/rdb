@@ -234,7 +234,6 @@ int removeDb( int key )
 	struct entry *tmp = NULL;
 	struct entry *p = NULL;
 
-
 	tmp = db->head;
 
 	if( !tmp )
@@ -293,6 +292,37 @@ int removeDb( int key )
 
 	if( ret < 0 )
 		TRACE_1( DB , "No pair with key ( %d ) has been found, so nothing has been removed.\n" , key );
+
+	return ret;
+}
+
+int flushDb( void )
+{
+	TRACE_2( DB , "flushDb().\n");
+
+	int ret = 0;
+	struct entry *tmp = NULL;
+
+	if( !db->count )
+	{
+		TRACE_WARNING( DB , "Database is empty.\n");
+		ret = -ENODATA;
+	}
+	else
+	{
+		tmp = db->head;
+
+		while( db->count-- )
+		{
+			db->head = tmp;
+			zfree( db->head );
+			tmp = tmp->next;
+		}
+
+		db->head = NULL;
+		db->tail = NULL;
+		db->count = 0;
+	}
 
 	return ret;
 }
@@ -417,8 +447,12 @@ char *print( struct environment *env )
 	int nw = 0;
 	int i = 0;
 
-	status = ( char * )zmalloc( ( db->count * sizeof( int ) * 4 ) * sizeof( char ) );
-	
+	if( db->count )
+	{
+		status = ( char * )zmalloc( ( db->count * sizeof( int ) * 4 ) * sizeof( char ) );
+	}
+
+	/* If db->count == 0 , status will stay at NULL and will be handle in this condition. */
 
 	if( !status )
 	{
@@ -462,25 +496,30 @@ char *setPair( struct environment *env )
 
 	status = ( char * )zmalloc( 124 * sizeof( char ) );
 
-	if( env->arg_count > 2 )
+	if( !status )
 	{
-		TRACE_ERROR( DB , "Invalid arguments (max: 2 args).\n");
-		snprintf( status , 124 , "Invalid arguments (max: 2 args).\n");
+		TRACE_ERROR( DB , "Failed to allocate status string.\n");
 	}
 	else
 	{
-
-		key = env->genericVal[0];
-		value = env->genericVal[1];
-
-		ret = insertDb( key , value );
-
-		if( !status )
+		if( env->arg_count > 2 )
 		{
-			TRACE_ERROR( DB , "Failed to allocate status string.\n");
+			TRACE_ERROR( DB , "Invalid arguments (max: 2 args).\n");
+			snprintf( status , 124 , "Invalid arguments (max: 2 args).\n");
+		}
+		else if( env->arg_count < 2 )
+		{
+			TRACE_ERROR( DB , "Invalid arguments (min: 2 args).\n");
+			snprintf( status , 124 , "Invalid arguments (min: 2 args).\n");
 		}
 		else
 		{
+
+			key = env->genericVal[0];
+			value = env->genericVal[1];
+
+			ret = insertDb( key , value );
+
 			if( ret < 0 )
 				snprintf( status , 124 , "Cannot insert in database.\n");
 			else
@@ -502,21 +541,26 @@ char *getPair( struct environment *env )
 
 	status = ( char * )zmalloc( 124 * sizeof( char ) );
 
-	if( env->arg_count > 1 )
+	if( !status )
 	{
-		TRACE_ERROR( DB , "Invalid arguments (max: 1 args).\n");
-		snprintf( status , 124 , "Invalid arguments (max: 1 args).\n");
+		TRACE_ERROR( DB , "Failed to allocate status string.\n");
 	}
 	else
 	{
-		key = env->genericVal[0];
-
-		if( !status )
+		if( env->arg_count > 1 )
 		{
-			TRACE_ERROR( DB , "Failed to allocate status string.\n");
+			TRACE_ERROR( DB , "Invalid arguments (max: 1 args).\n");
+			snprintf( status , 124 , "Invalid arguments (max: 1 args).\n");
+		}
+		else if( env->arg_count < 1 )
+		{
+			TRACE_ERROR( DB , "Invalid arguments (min: 1 args).\n");
+			snprintf( status , 124 , "Invalid arguments (min: 1 args).\n");
 		}
 		else
 		{
+			key = env->genericVal[0];
+
 			ret = searchDb( key );
 
 			if( !ret )
@@ -540,21 +584,26 @@ char *removePair( struct environment *env )
 
 	status = ( char * )zmalloc( 124 * sizeof( char ) );
 
-	if( env->arg_count > 1 )
+	if( !status )
 	{
-		TRACE_ERROR( DB , "Invalid arguments (max: 1 args).\n");
-		snprintf( status , 124 , "Invalid arguments (max: 1 args).\n");
+		TRACE_ERROR( DB , "Failed to allocate status string.\n");
 	}
 	else
 	{
-		key = env->genericVal[0];
-
-		if( !status )
+		if( env->arg_count > 1 )
 		{
-			TRACE_ERROR( DB , "Failed to allocate status string.\n");
+			TRACE_ERROR( DB , "Invalid arguments (max: 1 args).\n");
+			snprintf( status , 124 , "Invalid arguments (max: 1 args).\n");
+		}
+		else if( env->arg_count < 1 )
+		{
+			TRACE_ERROR( DB , "Invalid arguments (min: 1 args).\n");
+			snprintf( status , 124 , "Invalid arguments (min: 1 args).\n");
 		}
 		else
 		{
+			key = env->genericVal[0];
+
 			ret = removeDb( key );
 
 			if( ret < 0 )
@@ -564,6 +613,33 @@ char *removePair( struct environment *env )
 		}
 	}
 
+
+	return status;
+}
+
+
+char *flush( struct environment *env )
+{
+
+	TRACE_2( DB , "flushDb().\n");
+	int ret = 0;
+	char *status = NULL;
+
+	status = ( char * )zmalloc( 124 * sizeof( char ) );
+
+	if( !status )
+	{
+		TRACE_ERROR( DB , "Failed to allocate status string.\n");
+	}
+	else
+	{
+		ret = flushDb();
+
+		if( ret < 0 )
+			snprintf( status , 124 , "Cannot flush database.\n");
+		else
+			snprintf( status , 124 , "OK\n");
+	}
 
 	return status;
 }
