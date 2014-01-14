@@ -17,6 +17,7 @@ typedef struct environment
 
 	/* Generic value, used by some functions */
 	unsigned int genericVal[MAX_GENERIC_VAL];
+	unsigned int arg_count;
 
 }Environment;
 

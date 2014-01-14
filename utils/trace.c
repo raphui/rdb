@@ -124,32 +124,40 @@ char *setTraceLevel( struct environment *env )
 	unsigned int level;
     char *buff = ( char * )zcalloc( 248 , sizeof( char ) );
 
-	module = env->genericVal[0];
-	level = env->genericVal[1];
+	if( env->arg_count > 2 )
+	{
+		TRACE_ERROR( DB , "Invalid arguments (max: 2 args).\n");
+		snprintf( buff , 248 , "Invalid arguments (max: 1 args).\n");
+	}
+	else
+	{
+		module = env->genericVal[0];
+		level = env->genericVal[1];
+		
+		if( module >= MODULE_COUNT )
+  	  	{
+        	sprintf( buff , "This module does not exist.\n");
+    	}
+    	else if( trace_modules[module].level == level )
+    	{
+       		/* Do nothing */
+       		sprintf( buff , "The module have already this level of trace.\n");
+    	}
+    	else if( ( level != TRACE_LEVEL_ALL )
+       	      && ( level != TRACE_LEVEL_MID )
+       	      && ( level != TRACE_LEVEL_DEFAULT )
+       	      && ( level != TRACE_LEVEL_FUNC ) )
+    	{
+       	 /* Do nothing */
+       		sprintf( buff , "This level of trace doesn't exist.\n");
+    	}
+    	else
+    	{
+       		trace_modules[module].level = level;
 
-    if( module >= MODULE_COUNT )
-    {
-        sprintf( buff , "This module does not exist.\n");
-    }
-    else if( trace_modules[module].level == level )
-    {
-        /* Do nothing */
-        sprintf( buff , "The module have already this level of trace.\n");
-    }
-    else if( ( level != TRACE_LEVEL_ALL )
-             && ( level != TRACE_LEVEL_MID )
-             && ( level != TRACE_LEVEL_DEFAULT )
-             && ( level != TRACE_LEVEL_FUNC ) )
-    {
-        /* Do nothing */
-        sprintf( buff , "This level of trace doesn't exist.\n");
-    }
-    else
-    {
-        trace_modules[module].level = level;
-
-        sprintf( buff , "The trace level of the module changed.\n");
-    }
+       		sprintf( buff , "The trace level of the module changed.\n");
+    	}
+	}
 
     return buff;
 }

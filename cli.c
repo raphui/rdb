@@ -92,6 +92,7 @@ void *doCommand( char *cmd )
 			break;
 
 		env->genericVal[i] = ( unsigned int )atoi( ptr );
+		env->arg_count++;
 	}
 
     if( ( idFuncptr = searchCliCmd( cmd ) ) >= 0 )

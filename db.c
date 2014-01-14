@@ -460,23 +460,32 @@ char *setPair( struct environment *env )
 	unsigned int key;
 	unsigned int value;
 
-	key = env->genericVal[0];
-	value = env->genericVal[1];
-
-	ret = insertDb( key , value );
-
 	status = ( char * )zmalloc( 124 * sizeof( char ) );
 
-	if( !status )
+	if( env->arg_count > 2 )
 	{
-		TRACE_ERROR( DB , "Failed to allocate status string.\n");
+		TRACE_ERROR( DB , "Invalid arguments (max: 2 args).\n");
+		snprintf( status , 124 , "Invalid arguments (max: 2 args).\n");
 	}
 	else
 	{
-		if( ret < 0 )
-			snprintf( status , 124 , "Cannot insert in database.\n");
+
+		key = env->genericVal[0];
+		value = env->genericVal[1];
+
+		ret = insertDb( key , value );
+
+		if( !status )
+		{
+			TRACE_ERROR( DB , "Failed to allocate status string.\n");
+		}
 		else
-			snprintf( status , 124 , "OK");
+		{
+			if( ret < 0 )
+				snprintf( status , 124 , "Cannot insert in database.\n");
+			else
+				snprintf( status , 124 , "OK");
+		}
 	}
 
 	return status;
@@ -491,22 +500,30 @@ char *getPair( struct environment *env )
 	char *status = NULL;
 	unsigned int key;
 
-	key = env->genericVal[0];
-
 	status = ( char * )zmalloc( 124 * sizeof( char ) );
 
-	if( !status )
+	if( env->arg_count > 1 )
 	{
-		TRACE_ERROR( DB , "Failed to allocate status string.\n");
+		TRACE_ERROR( DB , "Invalid arguments (max: 1 args).\n");
+		snprintf( status , 124 , "Invalid arguments (max: 1 args).\n");
 	}
 	else
 	{
-		ret = searchDb( key );
+		key = env->genericVal[0];
 
-		if( !ret )
-			snprintf( status , 124 , "Cannot retrieve pair in database.\n");
+		if( !status )
+		{
+			TRACE_ERROR( DB , "Failed to allocate status string.\n");
+		}
 		else
-			snprintf( status , 124 , "%d - %d - %x\n" , ret->key , ret->value , ret->hash );
+		{
+			ret = searchDb( key );
+
+			if( !ret )
+				snprintf( status , 124 , "Cannot retrieve pair in database.\n");
+			else
+				snprintf( status , 124 , "%d - %d - %x\n" , ret->key , ret->value , ret->hash );
+		}
 	}
 
 	return status;
@@ -521,22 +538,30 @@ char *removePair( struct environment *env )
 	char *status = NULL;
 	unsigned int key;
 
-	key = env->genericVal[0];
-
 	status = ( char * )zmalloc( 124 * sizeof( char ) );
-	
-	if( !status )
+
+	if( env->arg_count > 1 )
 	{
-		TRACE_ERROR( DB , "Failed to allocate status string.\n");
+		TRACE_ERROR( DB , "Invalid arguments (max: 1 args).\n");
+		snprintf( status , 124 , "Invalid arguments (max: 1 args).\n");
 	}
 	else
 	{
-		ret = removeDb( key );
+		key = env->genericVal[0];
 
-		if( ret < 0 )
-			snprintf( status , 124 , "Cannot remove pair in database.\n");
+		if( !status )
+		{
+			TRACE_ERROR( DB , "Failed to allocate status string.\n");
+		}
 		else
-			snprintf( status , 124 , "Removed: %d\n" , key );
+		{
+			ret = removeDb( key );
+
+			if( ret < 0 )
+				snprintf( status , 124 , "Cannot remove pair in database.\n");
+			else
+				snprintf( status , 124 , "Removed: %d\n" , key );
+		}
 	}
 
 
