@@ -256,16 +256,25 @@ int removeDb( int key )
 				
 					p = tmp->next;
 					p->prev = tmp->prev;
+					db->count--;
+				}
+				else if( !tmp->prev && !tmp->next ) /* Removing last node in list */
+				{
+					db->head = NULL;
+					db->tail = NULL;
+					db->count = 0;
 				}
 				else if( !tmp->prev ) /* Removing head node */
 				{
 					db->head = tmp->next;
 					db->head->prev = NULL;
+					db->count--;
 				}
 				else if( !tmp->next ) /* Removing tail node */
 				{
 					db->tail = tmp->prev;
 					db->tail->next = NULL;
+					db->count--;
 				}
 
 				zfree( tmp );
