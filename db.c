@@ -449,7 +449,7 @@ char *print( struct environment *env )
 
 	if( db->count )
 	{
-		status = ( char * )zmalloc( ( db->count * sizeof( int ) * 4 ) * sizeof( char ) );
+		status = ( char * )zmalloc( db->count * 28 ); /*  The output string has a size of 26 */
 	}
 
 	/* If db->count == 0 , status will stay at NULL and will be handle in this condition. */
@@ -473,6 +473,8 @@ char *print( struct environment *env )
 			{
 				if( !tmp )
 					break;
+				
+				printf("####### %d ###########\n" , nw );
 
 				nw += sprintf( status + nw , "%d - %d - %x\n" , tmp->key , tmp->value , tmp->hash );
 

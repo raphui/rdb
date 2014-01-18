@@ -24,13 +24,13 @@ void *zmalloc( size_t size )
 {
     TRACE_2( ZMEMORY , "zmalloc( %d )." , size );
 
-    memoryAllocate += size;
+    memoryAllocate += size + sizeof( size_t );
 
-	void *p = malloc( size );
+	void *p = malloc( size + sizeof( size_t ) );
 
-	memset( p , 0 , size );
+	*( ( size_t * ) p ) = size;
 
-    return p;
+    return p + sizeof( size_t );
 }
 
 void *zcalloc( size_t count , size_t size )
@@ -63,7 +63,7 @@ void zfree( void *ptr )
 
     memoryFree += sizeptr;
 
-    free( ptr );
+    free( realptr );
 }
 
 char *getMemoryCount( struct environment *env )

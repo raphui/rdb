@@ -43,8 +43,8 @@ void createServer( void *port )
     TRACE_2( SERVER , "createServer( %d )." , *( int * )port );
 
     int s_server = socket( AF_INET , SOCK_STREAM , 0 );
-    int clients[MAX_CLIENT];
-    int numClients;
+    int clients[MAX_CLIENT] = { 0 };
+    int numClients = 0;
 
     struct sockaddr_in serv_addr;
     argumentReceivingThread_t *args;

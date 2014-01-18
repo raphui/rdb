@@ -39,7 +39,7 @@ int main( int argc , char **argv )
 			break;
 		else
 		{
-			status = doCommand( command );
+			status = ( char * )doCommand( command );
 			
 			if( !status )
 				printf("An error occurs.\n");
