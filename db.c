@@ -165,8 +165,6 @@ int insertDb( char *key , char *value )
 
 			TRACE_1( DB , "Add node in database.\n");
 
-			tmp = db->tail;
-
 			e->key = ( char * )zmalloc( MAX_STRING_SIZE * sizeof( char ) );
 			e->value = ( char * )zmalloc( MAX_STRING_SIZE * sizeof( char ) );
 			strncpy( e->key , key , MAX_STRING_SIZE );
@@ -306,6 +304,7 @@ int flushDb( void )
 
 	int ret = 0;
 	struct entry *tmp = NULL;
+	struct entry *p = NULL;
 
 	if( !db->count )
 	{
@@ -315,12 +314,15 @@ int flushDb( void )
 	else
 	{
 		tmp = db->head;
+		p = tmp->next;
 
-		while( db->count-- )
+		while( --( db->count ) )
 		{
-			db->head = tmp;
-			zfree( db->head );
-			tmp = tmp->next;
+			zfree( tmp->key );
+			zfree( tmp->value );
+			zfree( tmp );
+			tmp = p;
+			p = p->next;	
 		}
 
 		db->head = NULL;
@@ -625,7 +627,7 @@ char *removePair( struct environment *env )
 char *flush( struct environment *env )
 {
 
-	TRACE_2( DB , "flushDb().\n");
+	TRACE_2( DB , "flush().\n");
 	int ret = 0;
 	char *status = NULL;
 
