@@ -79,9 +79,7 @@ void *doCommand( char *cmd )
 	char *ptr = NULL;
 
     /* Dynamic allocation, because after send the response throught the socket, free() is called. (If it's declare like -char errorMsg[]="zedze"- this will crash for sure.) */
-    char *errorMsg = ( char * )zmalloc( 28 * sizeof( char ) );
-
-    memset( errorMsg , 0 , 28 );
+    char *errorMsg = NULL; 
 
 	ptr = strtok( cmd , " ");
 
@@ -117,6 +115,10 @@ void *doCommand( char *cmd )
     else
     {
         TRACE_ERROR( CLI , "Command is not supported.");
+
+		errorMsg = ( char * )zmalloc( 28 * sizeof( char ) );
+
+		memset( errorMsg , 0 , 28 );
 
         sprintf( errorMsg , "Command is not supported.\n");
 

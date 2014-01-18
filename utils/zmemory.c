@@ -61,7 +61,7 @@ void zfree( void *ptr )
 
     TRACE_1( ZMEMORY , "Size to be free : %d." , sizeptr );
 
-    memoryFree += sizeptr;
+    memoryFree += sizeptr + sizeof( size_t );
 
     free( realptr );
 }

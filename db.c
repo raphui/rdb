@@ -116,6 +116,7 @@ int insertDb( char *key , char *value )
 	int ret = 0;
 	struct entry *e = NULL;
 	struct entry *tmp = NULL;
+	size_t size = 0;
 
 	if( db->count == 0 )
 	{
@@ -130,10 +131,29 @@ int insertDb( char *key , char *value )
 		}
 		else
 		{
-			e->key = ( char * )zmalloc( MAX_STRING_SIZE * sizeof( char ) );
-			e->value = ( char * )zmalloc( MAX_STRING_SIZE * sizeof( char ) );
-			strncpy( e->key , key , MAX_STRING_SIZE );
-			strncpy( e->value , value , MAX_STRING_SIZE );
+			size = strlen( key );
+			if( size > MAX_STRING_SIZE )
+			{
+				e->key = ( char * )zmalloc( MAX_STRING_SIZE * sizeof( char ) );
+				size = MAX_STRING_SIZE;
+			}
+			else
+				e->key = ( char * )zmalloc( size * sizeof( char ) );
+
+			strncpy( e->key , key , size );
+			
+			size = strlen( value );
+	
+			if( size > MAX_STRING_SIZE )
+			{
+				e->value = ( char * )zmalloc( MAX_STRING_SIZE * sizeof( char ) );
+				size = MAX_STRING_SIZE;
+			}
+			else
+				e->value = ( char * )zmalloc( size * sizeof( char ) );
+
+			strncpy( e->value , value , size );
+
 			e->hash = hash( key , value );
 			e->used = 1;
 
@@ -165,11 +185,30 @@ int insertDb( char *key , char *value )
 
 			TRACE_1( DB , "Add node in database.\n");
 
-			e->key = ( char * )zmalloc( MAX_STRING_SIZE * sizeof( char ) );
-			e->value = ( char * )zmalloc( MAX_STRING_SIZE * sizeof( char ) );
-			strncpy( e->key , key , MAX_STRING_SIZE );
-			strncpy( e->value , value , MAX_STRING_SIZE );
-			e->hash = hash( key , value );	
+			size = strlen( key );
+			if( size > MAX_STRING_SIZE )
+			{
+				e->key = ( char * )zmalloc( MAX_STRING_SIZE * sizeof( char ) );
+				size = MAX_STRING_SIZE;
+			}
+			else
+				e->key = ( char * )zmalloc( size * sizeof( char ) );
+
+			strncpy( e->key , key , size );
+			
+			size = strlen( value );
+	
+			if( size > MAX_STRING_SIZE )
+			{
+				e->value = ( char * )zmalloc( MAX_STRING_SIZE * sizeof( char ) );
+				size = MAX_STRING_SIZE;
+			}
+			else
+				e->value = ( char * )zmalloc( size * sizeof( char ) );
+
+			strncpy( e->value , value , size );
+
+			e->hash = hash( key , value );
 			e->used = 1;
 
 			TRACE_1( DB , "Add node in database.\n");
@@ -277,7 +316,9 @@ int removeDb( char *key )
 					db->tail->next = NULL;
 					db->count--;
 				}
-
+				
+				zfree( tmp->key );
+				zfree( tmp->value );
 				zfree( tmp );
 				ret = 0;
 				break;
