@@ -11,6 +11,8 @@
 #define MAX_DB_COUNT	3
 #define MAX_DB_SIZE		2048
 
+#define MAX_STRING_SIZE	512
+
 typedef struct database
 {
 	int count;
@@ -21,8 +23,8 @@ typedef struct database
 
 typedef struct entry
 {
-	int key;
-	int value;
+	char *key;
+	char *value;
 	int hash;
 	int used;
 
@@ -33,10 +35,10 @@ typedef struct entry
 
 int createDb( void );
 int destroyDb( void );
-int insertDb( int key , int value );
+int insertDb( char *key , char *value );
 //int searchDb( int key );
-struct entry *searchDb( int key );
-int removeDb( int key );
+struct entry *searchDb( char *key );
+int removeDb( char *key );
 int flushDb( void );
 
 /* 0 : asc , 1 : desc */

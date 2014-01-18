@@ -2,15 +2,15 @@
 
 static struct database *db;
 
-static int crc( int val )
+static int crc( char *val )
 {
-	TRACE_2( DB , "crc( %d )." , val );
+	TRACE_2( DB , "crc( %s )." , val );
 
 	int poly = 0xEDB88320;
 	int crc = 0;
-	unsigned int length = sizeof( int );
+	unsigned int length = strlen( val );
 	unsigned int i = 0;
-	unsigned char *p = ( unsigned char * )&val;
+	char *p = val;
 
 	while( length-- )
 	{
@@ -28,10 +28,10 @@ static int crc( int val )
 	return ~crc;
 }
 
-static int hash( int key , int value )
+static int hash( char *key , char *value )
 {
 
-	TRACE_2( DB , "hash( %d , %d )." , key , value );
+	TRACE_2( DB , "hash( %s , %s )." , key , value );
 
 	int hash = 0;
 	
@@ -109,9 +109,9 @@ int destroyDb( void )
 	return ret;
 }
 
-int insertDb( int key , int value )
+int insertDb( char *key , char *value )
 {
-	TRACE_2( DB , "insertDb( %d , %d )." , key , value );
+	TRACE_2( DB , "insertDb( %s , %s )." , key , value );
 
 	int ret = 0;
 	struct entry *e = NULL;
@@ -130,8 +130,10 @@ int insertDb( int key , int value )
 		}
 		else
 		{
-			e->key = key;
-			e->value = value;
+			e->key = ( char * )zmalloc( MAX_STRING_SIZE * sizeof( char ) );
+			e->value = ( char * )zmalloc( MAX_STRING_SIZE * sizeof( char ) );
+			strncpy( e->key , key , MAX_STRING_SIZE );
+			strncpy( e->value , value , MAX_STRING_SIZE );
 			e->hash = hash( key , value );
 			e->used = 1;
 
@@ -165,8 +167,10 @@ int insertDb( int key , int value )
 
 			tmp = db->tail;
 
-			e->key = key;
-			e->value = value;
+			e->key = ( char * )zmalloc( MAX_STRING_SIZE * sizeof( char ) );
+			e->value = ( char * )zmalloc( MAX_STRING_SIZE * sizeof( char ) );
+			strncpy( e->key , key , MAX_STRING_SIZE );
+			strncpy( e->value , value , MAX_STRING_SIZE );
 			e->hash = hash( key , value );	
 			e->used = 1;
 
@@ -188,9 +192,9 @@ int insertDb( int key , int value )
 }
 
 
-struct entry *searchDb( int key )
+struct entry *searchDb( char *key )
 {
-	TRACE_2( DB , "searchDb( %d ).\n" , key );
+	TRACE_2( DB , "searchDb( %s ).\n" , key );
 
 	struct entry *ret = NULL;
 	struct entry *tmp = NULL;
@@ -207,7 +211,7 @@ struct entry *searchDb( int key )
 	{
 		do
 		{
-			if( tmp->key == key )
+			if( !strcmp( tmp->key , key ) )
 			{
 				if( tmp->hash == hash( key , tmp->value ) )
 				{
@@ -226,9 +230,9 @@ struct entry *searchDb( int key )
 	return ret;
 }
 
-int removeDb( int key )
+int removeDb( char *key )
 {
-	TRACE_2( DB , "removeDb( %d ).\n" , key );
+	TRACE_2( DB , "removeDb( %s ).\n" , key );
 
 	int ret = 0;
 	struct entry *tmp = NULL;
@@ -245,7 +249,7 @@ int removeDb( int key )
 	{
 		do
 		{
-			if( tmp->key == key )
+			if( !strcmp( tmp->key , key ) )
 			{
 
 				if( tmp->prev && tmp->next ) /* Removing node in the middle of list */
@@ -474,9 +478,7 @@ char *print( struct environment *env )
 				if( !tmp )
 					break;
 				
-				printf("####### %d ###########\n" , nw );
-
-				nw += sprintf( status + nw , "%d - %d - %x\n" , tmp->key , tmp->value , tmp->hash );
+				nw += sprintf( status + nw , "%s - %s - %x\n" , tmp->key , tmp->value , tmp->hash );
 
 				tmp = tmp->next;
 			}
@@ -489,12 +491,12 @@ char *print( struct environment *env )
 
 char *setPair( struct environment *env )
 {
-	TRACE_2( DB , "setPair( %d , %d ).\n" , env->genericVal[0] , env->genericVal[1] );
+	TRACE_2( DB , "setPair( %s , %s ).\n" , env->genericVal[0] , env->genericVal[1] );
 
 	int ret = 0;
 	char *status = NULL;
-	unsigned int key;
-	unsigned int value;
+	char *key;
+	char *value;
 
 	status = ( char * )zmalloc( 124 * sizeof( char ) );
 
@@ -535,11 +537,11 @@ char *setPair( struct environment *env )
 /* value argument is not used, this argument is here just to use the cli (required 2 unsigned int args ) */
 char *getPair( struct environment *env )
 {
-	TRACE_2( DB , "getPair( %d ).\n" , env->genericVal[0] );
+	TRACE_2( DB , "getPair( %s ).\n" , env->genericVal[0] );
 
 	struct entry *ret = NULL;
 	char *status = NULL;
-	unsigned int key;
+	char *key;
 
 	status = ( char * )zmalloc( 124 * sizeof( char ) );
 
@@ -568,7 +570,7 @@ char *getPair( struct environment *env )
 			if( !ret )
 				snprintf( status , 124 , "Cannot retrieve pair in database.\n");
 			else
-				snprintf( status , 124 , "%d - %d - %x\n" , ret->key , ret->value , ret->hash );
+				snprintf( status , 124 , "%s - %s - %x\n" , ret->key , ret->value , ret->hash );
 		}
 	}
 
@@ -582,7 +584,7 @@ char *removePair( struct environment *env )
 
 	int ret = 0;
 	char *status = NULL;
-	unsigned int key;
+	char *key;
 
 	status = ( char * )zmalloc( 124 * sizeof( char ) );
 
@@ -611,7 +613,7 @@ char *removePair( struct environment *env )
 			if( ret < 0 )
 				snprintf( status , 124 , "Cannot remove pair in database.\n");
 			else
-				snprintf( status , 124 , "Removed: %d\n" , key );
+				snprintf( status , 124 , "Removed: %s\n" , key );
 		}
 	}
 

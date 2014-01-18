@@ -94,9 +94,17 @@ void *doCommand( char *cmd )
 		if( !ptr )
 			break;
 
-		env->genericVal[i] = ( unsigned int )atoi( ptr );
+		env->genericVal[i] = ptr;
 		env->arg_count++;
 	}
+
+	if( env->arg_count > 0 )
+	{
+		/* Remove '\n' character from the last argument */
+		ptr = env->genericVal[env->arg_count - 1];
+		*( ptr + strlen( ptr ) - 1 ) = 0;
+	}
+
 
     if( ( idFuncptr = searchCliCmd( cmd ) ) >= 0 )
     {

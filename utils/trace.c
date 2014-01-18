@@ -122,7 +122,7 @@ char *setTraceLevel( struct environment *env )
 {
 	unsigned int module;
 	unsigned int level;
-    char *buff = ( char * )zcalloc( 248 , sizeof( char ) );
+    char *buff = ( char * )zmalloc( 248 * sizeof( char ) );
 
 	if( env->arg_count > 2 )
 	{
@@ -131,8 +131,8 @@ char *setTraceLevel( struct environment *env )
 	}
 	else
 	{
-		module = env->genericVal[0];
-		level = env->genericVal[1];
+		module = ( unsigned int )atoi( env->genericVal[0] );
+		level = ( unsigned int )atoi( env->genericVal[1] );
 		
 		if( module >= MODULE_COUNT )
   	  	{

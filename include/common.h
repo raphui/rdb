@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include <errno.h>
 
-
 #define MAX_GENERIC_VAL	4
 
 typedef struct environment
@@ -16,7 +15,7 @@ typedef struct environment
 	struct database *db;
 
 	/* Generic value, used by some functions */
-	unsigned int genericVal[MAX_GENERIC_VAL];
+	char *genericVal[MAX_GENERIC_VAL];
 	unsigned int arg_count;
 
 }Environment;
