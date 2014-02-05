@@ -41,23 +41,6 @@ static int hash( char *key , char *value )
 	return hash;
 }
 
-//static int getDatabase( const char *name )
-//{
-//	TRACE_2( DB , "getDatabase( %s ).\n" , name );
-//
-//	int i = 0;
-//
-//	for( i = 0 ; i < MAX_DB_COUNT ; i++ )
-//	{
-//		if( databases[i] != NULL )
-//			if( databases[i]->name != NULL )
-//				if( !strcmp( databases[i]->name , name ) )
-//					return i;
-//	}
-//
-//	return -ENODATA;
-//}
-
 int createDb( void )
 {
 	TRACE_2( DB , "createDb().");

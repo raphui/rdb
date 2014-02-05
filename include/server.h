@@ -34,7 +34,7 @@
 #include <cli.h>
 
 #define BUFF_SIZE       1024
-#define MAX_CLIENT      10
+#define MAX_CLIENT      1000
 #define PORT_CLI        1339
 
 typedef struct argumentReceivingThread

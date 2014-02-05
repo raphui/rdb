@@ -79,21 +79,39 @@ void *doCommand( char *cmd )
 	char *ptr = NULL;
 
     /* Dynamic allocation, because after send the response throught the socket, free() is called. (If it's declare like -char errorMsg[]="zedze"- this will crash for sure.) */
-    char *errorMsg = NULL; 
+    char *errorMsg = NULL;
 
-	ptr = strtok( cmd , " ");
-
-	env->arg_count = 0;
-
-	for( i = 0 ; i < MAX_GENERIC_VAL ; i++ )
+	if( strchr( cmd , '\'' ) )
 	{
-		ptr = strtok( NULL , " " );
+		ptr = strtok( cmd , " ");
 		
-		if( !ptr )
-			break;
+		env->arg_count = 0;
 
-		env->genericVal[i] = ptr;
+		ptr = strtok( NULL , " " );
+		env->genericVal[0] = ptr;
 		env->arg_count++;
+		
+		ptr = strtok( NULL , "\0" );
+		env->genericVal[1] = ptr;
+		env->arg_count++;
+	}
+	else
+	{
+
+		ptr = strtok( cmd , " ");
+
+		env->arg_count = 0;
+
+		for( i = 0 ; i < MAX_GENERIC_VAL ; i++ )
+		{
+			ptr = strtok( NULL , " " );
+
+			if( !ptr )
+				break;
+
+			env->genericVal[i] = ptr;
+			env->arg_count++;
+		}
 	}
 
 	if( env->arg_count > 0 )
