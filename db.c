@@ -479,7 +479,7 @@ char *print( struct environment *env )
 
 	if( db->count )
 	{
-		status = ( char * )zmalloc( db->count * 28 ); /*  The output string has a size of 26 */
+		status = ( char * )zmalloc( db->count * 124 ); /*  The output string has a size of 124 */
 	}
 
 	/* If db->count == 0 , status will stay at NULL and will be handle in this condition. */
