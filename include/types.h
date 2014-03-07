@@ -22,14 +22,8 @@
 
 #include <trace.h>
 
-//#define PC_SUCCESS          0
-//#define PC_ERROR            -1
-
 #define TRUE                1
 #define FALSE               0
-
-/**** Compilation Environment settings ****/
-#define CROSS_COMPILE       0
 
 
 /**** Mutex tracking ****/
