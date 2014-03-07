@@ -36,13 +36,9 @@ typedef struct entry
 int createDb( void );
 int destroyDb( void );
 int insertDb( char *key , char *value );
-//int searchDb( int key );
 struct entry *searchDb( char *key );
 int removeDb( char *key );
 int flushDb( void );
-
-/* 0 : asc , 1 : desc */
-//void sortDb( const char *name , int n , int direction );
 
 char *sort( struct environment *env );
 char *print( struct environment *env );
