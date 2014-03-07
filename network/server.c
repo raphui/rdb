@@ -20,8 +20,6 @@
 static int lastRequester;
 static int portCli = PORT_CLI;
 
-//static pthread_t serverStreamerThread;
-//static pthread_t serverCommanderThread;
 static pthread_t serverCliThread;
 
 void launchServer( void )
@@ -119,7 +117,6 @@ void receivingThread( void *arg )
     char buff[BUFF_SIZE];
     char input[] = "rdb_remote~>";
     int ret;
-//    int info;
     void *cliRet;
 
     argumentReceivingThread_t *arguments = ( argumentReceivingThread_t * )arg;
@@ -130,9 +127,8 @@ void receivingThread( void *arg )
 
     if( arguments->port == PORT_CLI )
         sendVoidSocket( arguments->socket , input , sizeof( input ) );
-    else //usleep( 2000 ) for WAN connection, usleep( 300 ) for LAN connection.
+    else
 		TRACE_1( SERVER , "Port not used at the moment.\n");
-        //usleep( 2000 ); info = IAMBRIDGE; sendVoidSocket( arguments->socket , ( void *)&info , sizeof( int ) );    //Sending info that the remote is connected to a bridge.
 
     while( 1 )
     {
