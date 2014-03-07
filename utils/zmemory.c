@@ -1,5 +1,6 @@
 /*  wMusic - Music system software
- *  Copyright (C) 2013  Raphaël POGGI
+/*  rdb - In-memory database optimized for embedded world
+ *  Copyright (C) 2013  Raphaël Poggi
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
