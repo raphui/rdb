@@ -1,5 +1,5 @@
 /*  wMusic - Music system software
-/*  rdb - In-memory database optimized for embedded world
+ *  rdb - In-memory database optimized for embedded world
  *  Copyright (C) 2013  Raphaël Poggi
  *
  *  This program is free software: you can redistribute it and/or modify
