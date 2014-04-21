@@ -32,6 +32,8 @@ static cliCommand_t cliCmd[] =
     {"get"              ,   &getPair        },
     {"remove"           ,   &removePair     },
     {"flush"            ,   &flush          },
+    {"compress"         ,   &compress	    },
+    {"decompress"       ,   &decompress	    },
 };
 
 static char *help( struct environment *env )

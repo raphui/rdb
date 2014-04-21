@@ -7,6 +7,7 @@
 
 #include <trace.h>
 #include <common.h>
+#include <lzo/lzo1x.h>
 
 #define MAX_DB_COUNT    3
 #define MAX_DB_SIZE     2048
@@ -31,6 +32,8 @@ typedef struct entry
     struct entry *prev;
     struct entry *next;
 
+    size_t size;
+
 }Entry;
 
 int createDb( void );
@@ -39,6 +42,8 @@ int insertDb( char *key , char *value );
 struct entry *searchDb( char *key );
 int removeDb( char *key );
 int flushDb( void );
+int compressDb( void );
+int decompressDb( void );
 
 char *sort( struct environment *env );
 char *print( struct environment *env );
@@ -46,5 +51,7 @@ char *setPair( struct environment *env );
 char *getPair( struct environment *env );
 char *removePair( struct environment *env );
 char *flush( struct environment *env );
+char *compress( struct environment *env );
+char *decompress( struct environment *env );
 
 #endif /* DB_H */

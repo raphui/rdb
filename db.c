@@ -100,6 +100,7 @@ int insertDb( char *key , char *value )
     struct entry *e = NULL;
     struct entry *tmp = NULL;
     size_t size = 0;
+    size_t global_size = 0;
 
     if( db->count == 0 )
     {
@@ -125,6 +126,7 @@ int insertDb( char *key , char *value )
                 e->key = ( char * )zmalloc( size * sizeof( char ) );
 
             strncpy( e->key , key , size );
+	    global_size += size;
 
             size = strlen( value );
 
@@ -137,9 +139,14 @@ int insertDb( char *key , char *value )
                 e->value = ( char * )zmalloc( size * sizeof( char ) );
 
             strncpy( e->value , value , size );
+	    global_size += size;
 
             e->hash = hash( key , value );
             e->used = 1;
+	    global_size += sizeof( e->hash );
+	    global_size += sizeof( e->used );
+
+	    e->size = global_size;
 
             TRACE_1( DB , "Add node in database.\n");
 
@@ -359,6 +366,105 @@ int flushDb( void )
     return ret;
 }
 
+int compressDb( void )
+{
+    TRACE_2( DB , "compressDb().\n");
+    int ret = 0;
+    int i = 0;
+    unsigned char *working_mem = ( unsigned char * )zmalloc(LZO1X_MEM_COMPRESS);
+    struct entry *tmp = NULL;
+    size_t compressed_size = 0;
+
+    ret = lzo_init();
+    if( ret < 0 )
+    {
+	TRACE_ERROR( DB , "Failed to init lzo.\n");
+    }
+    else
+    {
+	if( !db->count )
+	{
+	    TRACE_WARNING( DB , "Database is empty.\n");
+	    ret = -ENODATA;
+	}
+	else
+	{
+	    tmp = db->head;
+
+	    if( !tmp )
+	    {
+		TRACE_WARNING( DB , "Database has no head !!!\n");
+	    }
+	    else
+	    {
+		for( i = 0 ; i < db->count ; i++ )
+		{
+		    if( !tmp )
+			break;
+
+		    lzo1x_999_compress( tmp , tmp->size , tmp , &compressed_size , working_mem );
+
+		    tmp = tmp->next;
+		}
+	    }
+	}
+    }
+
+    zfree( working_mem );
+
+    return ret;
+}
+
+int decompressDb( void )
+{
+    TRACE_2( DB , "decompressDb().\n");
+    int ret = 0;
+    int i = 0;
+    unsigned char *working_mem = ( unsigned char * )zmalloc(LZO1X_MEM_COMPRESS);
+    struct entry *tmp = NULL;
+    size_t compressed_size = 0;
+
+    ret = lzo_init();
+    if( ret < 0 )
+    {
+	TRACE_ERROR( DB , "Failed to init lzo.\n");
+    }
+    else
+    {
+	if( !db->count )
+	{
+	    TRACE_WARNING( DB , "Database is empty.\n");
+	    ret = -ENODATA;
+	}
+	else
+	{
+	    tmp = db->head;
+
+	    if( !tmp )
+	    {
+		TRACE_WARNING( DB , "Database has no head !!!\n");
+	    }
+	    else
+	    {
+		for( i = 0 ; i < db->count ; i++ )
+		{
+		    if( !tmp )
+			break;
+
+//		    lzo1x_999_compress( tmp , sizeof( struct entry ) , tmp , &compressed_size , working_mem );
+
+		    tmp = tmp->next;
+		}
+	    }
+	}
+    }
+
+    zfree( working_mem );
+
+    return ret;
+}
+
+
 char *print( struct environment *env )
 {
     TRACE_2( DB , "print().\n");
@@ -558,6 +664,57 @@ char *flush( struct environment *env )
 
         if( ret < 0 )
             snprintf( status , 124 , "Cannot flush database.\n");
+        else
+            snprintf( status , 124 , "OK\n");
+    }
+
+    return status;
+}
+
+char *compress( struct environment *env )
+{
+    TRACE_2( DB , "compress().\n");
+    int ret = 0;
+    char *status = NULL;
+
+    status = ( char * )zmalloc( 124 * sizeof( char ) );
+
+    if( !status )
+    {
+        TRACE_ERROR( DB , "Failed to allocate status string.\n");
+    }
+    else
+    {
+
+	ret = compressDb();
+
+        if( ret < 0 )
+            snprintf( status , 124 , "Cannot compress database.\n");
+        else
+            snprintf( status , 124 , "OK\n");
+    }
+
+    return status;
+}
+
+char *decompress( struct environment *env )
+{
+    TRACE_2( DB , "decompress().\n");
+    int ret = 0;
+    char *status = NULL;
+
+    status = ( char * )zmalloc( 124 * sizeof( char ) );
+
+    if( !status )
+    {
+        TRACE_ERROR( DB , "Failed to allocate status string.\n");
+    }
+    else
+    {
+	ret = decompressDb();
+
+        if( ret < 0 )
+            snprintf( status , 124 , "Cannot decompress database.\n");
         else
             snprintf( status , 124 , "OK\n");
     }
