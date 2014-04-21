@@ -29,7 +29,7 @@ typedef struct entry
 	int used;
 
 	struct entry *prev;
-	struct entry *next;	
+	struct entry *next;
 
 }Entry;
 

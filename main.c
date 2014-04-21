@@ -28,7 +28,7 @@ int main( int argc , char **argv )
 		if( !strcmp( opt , "t") )
 			launchServer();
 	}
-	
+
 
 	while( 1 )
 	{
@@ -40,7 +40,7 @@ int main( int argc , char **argv )
 		else
 		{
 			status = ( char * )doCommand( command );
-			
+
 			if( !status )
 				printf("An error occurs.\n");
 			else
@@ -49,7 +49,6 @@ int main( int argc , char **argv )
 				zfree( status );
 			}
 
-			
 		}
 
 	}

@@ -72,7 +72,7 @@ void *doCommand( char *cmd )
 {
     TRACE_2( CLI , "doCommand( %s )." , cmd );
 
-	int i = 0;	
+	int i = 0
     int idFuncptr;
     void *ret = NULL;
 	char *ptr = NULL;
@@ -83,13 +83,13 @@ void *doCommand( char *cmd )
 	if( strchr( cmd , '\'' ) )
 	{
 		ptr = strtok( cmd , " ");
-		
+
 		env->arg_count = 0;
 
 		ptr = strtok( NULL , " " );
 		env->genericVal[0] = ptr;
 		env->arg_count++;
-		
+
 		ptr = strtok( NULL , "\0" );
 		env->genericVal[1] = ptr;
 		env->arg_count++;
