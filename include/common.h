@@ -11,7 +11,7 @@ typedef struct environment
 	int memoryAllocate;
 	int memoryFree;
 	int countThreads;
-	
+
 	struct database *db;
 
 	/* Generic value, used by some functions */

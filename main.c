@@ -9,49 +9,49 @@
 
 int main( int argc , char **argv )
 {
-	char command[124] = { 0 };
-	char *opt = NULL;
-	int ret = 0;
-	char *status = NULL;
+    char command[124] = { 0 };
+    char *opt = NULL;
+    int ret = 0;
+    char *status = NULL;
 
-	ret = initEnvironment();
+    ret = initEnvironment();
 
-	if( ret < 0 )
-		return -1;
+    if( ret < 0 )
+        return -1;
 
-	createDb();
+    createDb();
 
-	if( argc > 1 )
-	{
-		opt = strtok( argv[1] , "-");
+    if( argc > 1 )
+    {
+        opt = strtok( argv[1] , "-");
 
-		if( !strcmp( opt , "t") )
-			launchServer();
-	}
+        if( !strcmp( opt , "t") )
+            launchServer();
+    }
 
 
-	while( 1 )
-	{
-		printf("rdb~>");
-		fgets( command , 124 , stdin );
+    while( 1 )
+    {
+        printf("rdb~>");
+        fgets( command , 124 , stdin );
 
-		if( !strcmp("q\n" , command ) )
-			break;
-		else
-		{
-			status = ( char * )doCommand( command );
+        if( !strcmp("q\n" , command ) )
+            break;
+        else
+        {
+            status = ( char * )doCommand( command );
 
-			if( !status )
-				printf("An error occurs.\n");
-			else
-			{
-				printf("%s\n" , status );
-				zfree( status );
-			}
+            if( !status )
+                printf("An error occurs.\n");
+            else
+            {
+                printf("%s\n" , status );
+                zfree( status );
+            }
 
-		}
+        }
 
-	}
+    }
 
-	return 0;
+    return 0;
 }
