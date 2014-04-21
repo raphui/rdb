@@ -4,19 +4,19 @@
 #include <stdio.h>
 #include <errno.h>
 
-#define MAX_GENERIC_VAL	4
+#define MAX_GENERIC_VAL 4
 
 typedef struct environment
 {
-	int memoryAllocate;
-	int memoryFree;
-	int countThreads;
+    int memoryAllocate;
+    int memoryFree;
+    int countThreads;
 
-	struct database *db;
+    struct database *db;
 
-	/* Generic value, used by some functions */
-	char *genericVal[MAX_GENERIC_VAL];
-	unsigned int arg_count;
+    /* Generic value, used by some functions */
+    char *genericVal[MAX_GENERIC_VAL];
+    unsigned int arg_count;
 
 }Environment;
 

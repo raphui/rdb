@@ -8,28 +8,28 @@
 #include <trace.h>
 #include <common.h>
 
-#define MAX_DB_COUNT	3
-#define MAX_DB_SIZE		2048
+#define MAX_DB_COUNT    3
+#define MAX_DB_SIZE     2048
 
-#define MAX_STRING_SIZE	512
+#define MAX_STRING_SIZE 512
 
 typedef struct database
 {
-	int count;
-	struct entry *head;
-	struct entry *tail;
+    int count;
+    struct entry *head;
+    struct entry *tail;
 
 }Database;
 
 typedef struct entry
 {
-	char *key;
-	char *value;
-	int hash;
-	int used;
+    char *key;
+    char *value;
+    int hash;
+    int used;
 
-	struct entry *prev;
-	struct entry *next;
+    struct entry *prev;
+    struct entry *next;
 
 }Entry;
 

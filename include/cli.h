@@ -30,7 +30,7 @@
 #include <db.h>
 #include <common.h>
 
-#define CLI_COUNT_COMMAND	sizeof( cliCmd ) / sizeof( cliCommand_t )
+#define CLI_COUNT_COMMAND   sizeof( cliCmd ) / sizeof( cliCommand_t )
 
 typedef struct cliCommand
 {

@@ -30,10 +30,10 @@ typedef struct trace_module
 
 trace_module trace_modules[] =
 {
-    {"DB"			,   TRACE_LEVEL_DEFAULT },
-    {"CLI"			,   TRACE_LEVEL_DEFAULT },
-    {"COMMON"		,   TRACE_LEVEL_DEFAULT },
-	{"SERVER"		,	TRACE_LEVEL_DEFAULT },
+    {"DB"           ,   TRACE_LEVEL_DEFAULT },
+    {"CLI"          ,   TRACE_LEVEL_DEFAULT },
+    {"COMMON"       ,   TRACE_LEVEL_DEFAULT },
+    {"SERVER"       ,   TRACE_LEVEL_DEFAULT },
     {"THREAD"       ,   TRACE_LEVEL_DEFAULT },
     {"ZMEMORY"      ,   TRACE_LEVEL_DEFAULT },
 };
@@ -120,44 +120,44 @@ int Traces_enable(unsigned int module, unsigned int level )
 
 char *setTraceLevel( struct environment *env )
 {
-	unsigned int module;
-	unsigned int level;
+    unsigned int module;
+    unsigned int level;
     char *buff = ( char * )zmalloc( 248 * sizeof( char ) );
 
-	if( env->arg_count > 2 )
-	{
-		TRACE_ERROR( DB , "Invalid arguments (max: 2 args).\n");
-		snprintf( buff , 248 , "Invalid arguments (max: 1 args).\n");
-	}
-	else
-	{
-		module = ( unsigned int )atoi( env->genericVal[0] );
-		level = ( unsigned int )atoi( env->genericVal[1] );
-		
-		if( module >= MODULE_COUNT )
-  	  	{
-        	sprintf( buff , "This module does not exist.\n");
-    	}
-    	else if( trace_modules[module].level == level )
-    	{
-       		/* Do nothing */
-       		sprintf( buff , "The module have already this level of trace.\n");
-    	}
-    	else if( ( level != TRACE_LEVEL_ALL )
-       	      && ( level != TRACE_LEVEL_MID )
-       	      && ( level != TRACE_LEVEL_DEFAULT )
-       	      && ( level != TRACE_LEVEL_FUNC ) )
-    	{
-       	 /* Do nothing */
-       		sprintf( buff , "This level of trace doesn't exist.\n");
-    	}
-    	else
-    	{
-       		trace_modules[module].level = level;
+    if( env->arg_count > 2 )
+    {
+        TRACE_ERROR( DB , "Invalid arguments (max: 2 args).\n");
+        snprintf( buff , 248 , "Invalid arguments (max: 1 args).\n");
+    }
+    else
+    {
+        module = ( unsigned int )atoi( env->genericVal[0] );
+        level = ( unsigned int )atoi( env->genericVal[1] );
+        
+        if( module >= MODULE_COUNT )
+        {
+            sprintf( buff , "This module does not exist.\n");
+        }
+        else if( trace_modules[module].level == level )
+        {
+            /* Do nothing */
+            sprintf( buff , "The module have already this level of trace.\n");
+        }
+        else if( ( level != TRACE_LEVEL_ALL )
+              && ( level != TRACE_LEVEL_MID )
+              && ( level != TRACE_LEVEL_DEFAULT )
+              && ( level != TRACE_LEVEL_FUNC ) )
+        {
+         /* Do nothing */
+            sprintf( buff , "This level of trace doesn't exist.\n");
+        }
+        else
+        {
+            trace_modules[module].level = level;
 
-       		sprintf( buff , "The trace level of the module changed.\n");
-    	}
-	}
+            sprintf( buff , "The trace level of the module changed.\n");
+        }
+    }
 
     return buff;
 }

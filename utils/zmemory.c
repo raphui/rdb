@@ -27,9 +27,9 @@ void *zmalloc( size_t size )
 
     memoryAllocate += size + sizeof( size_t );
 
-	void *p = malloc( size + sizeof( size_t ) );
+    void *p = malloc( size + sizeof( size_t ) );
 
-	*( ( size_t * ) p ) = size;
+    *( ( size_t * ) p ) = size;
 
     return p + sizeof( size_t );
 }
@@ -40,9 +40,9 @@ void *zcalloc( size_t count , size_t size )
 
     memoryAllocate += size;
 
-	void *p = calloc( count , size );
+    void *p = calloc( count , size );
 
-	memset( p , 0 , count * size );
+    memset( p , 0 , count * size );
 
     return p;
 }
@@ -75,8 +75,8 @@ char *getMemoryCount( struct environment *env )
 
     memset( buff , 0 , 248 );
 
-	env->memoryAllocate = memoryAllocate;
-	env->memoryFree = memoryFree;
+    env->memoryAllocate = memoryAllocate;
+    env->memoryFree = memoryFree;
 
     sprintf( buff , "Total memory allocate : %d\n" , env->memoryAllocate );
     sprintf( buff + strlen( buff ), "Total memory free : %d\n" , env->memoryFree );

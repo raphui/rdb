@@ -237,6 +237,7 @@ struct entry *searchDb( char *key )
                 if( tmp->hash == hash( key , tmp->value ) )
                 {
                     ret = tmp;
+		    tmp->used++;
                     break;
                 }
             }

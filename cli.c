@@ -26,12 +26,12 @@ static cliCommand_t cliCmd[] =
     {"dump_trace_level" ,   &dumpTrace      },
     {"get_level"        ,   &levelInfo      },
     {"help"             ,   &help           },
-	{"print"			,	&print			},
+    {"print"            ,   &print          },
     {"set_trace_level"  ,   &setTraceLevel  },
-	{"set"				,	&setPair		},
-	{"get"				,	&getPair		},
-	{"remove"			,	&removePair		},
-	{"flush"			,	&flush			},
+    {"set"              ,   &setPair        },
+    {"get"              ,   &getPair        },
+    {"remove"           ,   &removePair     },
+    {"flush"            ,   &flush          },
 };
 
 static char *help( struct environment *env )
@@ -72,53 +72,53 @@ void *doCommand( char *cmd )
 {
     TRACE_2( CLI , "doCommand( %s )." , cmd );
 
-	int i = 0
+    int i = 0;
     int idFuncptr;
     void *ret = NULL;
-	char *ptr = NULL;
+    char *ptr = NULL;
 
     /* Dynamic allocation, because after send the response throught the socket, free() is called. (If it's declare like -char errorMsg[]="zedze"- this will crash for sure.) */
     char *errorMsg = NULL;
 
-	if( strchr( cmd , '\'' ) )
-	{
-		ptr = strtok( cmd , " ");
+    if( strchr( cmd , '\'' ) )
+    {
+        ptr = strtok( cmd , " ");
 
-		env->arg_count = 0;
+        env->arg_count = 0;
 
-		ptr = strtok( NULL , " " );
-		env->genericVal[0] = ptr;
-		env->arg_count++;
+        ptr = strtok( NULL , " " );
+        env->genericVal[0] = ptr;
+        env->arg_count++;
 
-		ptr = strtok( NULL , "\0" );
-		env->genericVal[1] = ptr;
-		env->arg_count++;
-	}
-	else
-	{
+        ptr = strtok( NULL , "\0" );
+        env->genericVal[1] = ptr;
+        env->arg_count++;
+    }
+    else
+    {
 
-		ptr = strtok( cmd , " ");
+        ptr = strtok( cmd , " ");
 
-		env->arg_count = 0;
+        env->arg_count = 0;
 
-		for( i = 0 ; i < MAX_GENERIC_VAL ; i++ )
-		{
-			ptr = strtok( NULL , " " );
+        for( i = 0 ; i < MAX_GENERIC_VAL ; i++ )
+        {
+            ptr = strtok( NULL , " " );
 
-			if( !ptr )
-				break;
+            if( !ptr )
+                break;
 
-			env->genericVal[i] = ptr;
-			env->arg_count++;
-		}
-	}
+            env->genericVal[i] = ptr;
+            env->arg_count++;
+        }
+    }
 
-	if( env->arg_count > 0 )
-	{
-		/* Remove '\n' character from the last argument */
-		ptr = env->genericVal[env->arg_count - 1];
-		*( ptr + strlen( ptr ) - 1 ) = 0;
-	}
+    if( env->arg_count > 0 )
+    {
+        /* Remove '\n' character from the last argument */
+        ptr = env->genericVal[env->arg_count - 1];
+        *( ptr + strlen( ptr ) - 1 ) = 0;
+    }
 
 
     if( ( idFuncptr = searchCliCmd( cmd ) ) >= 0 )
@@ -133,9 +133,9 @@ void *doCommand( char *cmd )
     {
         TRACE_ERROR( CLI , "Command is not supported.");
 
-		errorMsg = ( char * )zmalloc( 28 * sizeof( char ) );
+        errorMsg = ( char * )zmalloc( 28 * sizeof( char ) );
 
-		memset( errorMsg , 0 , 28 );
+        memset( errorMsg , 0 , 28 );
 
         sprintf( errorMsg , "Command is not supported.\n");
 

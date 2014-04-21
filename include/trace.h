@@ -75,10 +75,10 @@ extern char *levelInfo( struct environment *env );
 
 enum {
 
-	DB,
-	CLI,
-	COMMON,
-	SERVER,
+    DB,
+    CLI,
+    COMMON,
+    SERVER,
     THREAD,
     ZMEMORY,
 };
