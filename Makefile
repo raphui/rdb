@@ -4,7 +4,7 @@ INCLUDES_HEADERS := -I$(PROJECT_HOME)/include
 INCLUDES_LIBS_HEADERS := -I/usr/local/include/ -I/usr/include/
 GCC := gcc
 DEBUGFLAGS_C-Compiler := -g -O0 -fno-omit-frame-pointer -pipe -Wall -Wextra
-LIBS := -lpthread -llzo2
+LIBS := -lpthread
 
 OBJS := main.o	\
 		utils/common.o	\
@@ -13,7 +13,9 @@ OBJS := main.o	\
 		utils/zmemory.o	\
 		network/server.o \
 		db.o	\
-		cli.o	
+		cli.o	\
+		lzf_c.o \
+		lzf_d.o
 
 
 %.o: %.c

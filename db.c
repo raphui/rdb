@@ -371,46 +371,35 @@ int compressDb( void )
     TRACE_2( DB , "compressDb().\n");
     int ret = 0;
     int i = 0;
-    unsigned char *working_mem = ( unsigned char * )zmalloc(LZO1X_MEM_COMPRESS);
     struct entry *tmp = NULL;
     size_t compressed_size = 0;
 
-    ret = lzo_init();
-    if( ret < 0 )
+    if( !db->count )
     {
-	TRACE_ERROR( DB , "Failed to init lzo.\n");
+	TRACE_WARNING( DB , "Database is empty.\n");
+	ret = -ENODATA;
     }
     else
     {
-	if( !db->count )
+	tmp = db->head;
+
+	if( !tmp )
 	{
-	    TRACE_WARNING( DB , "Database is empty.\n");
-	    ret = -ENODATA;
+	    TRACE_WARNING( DB , "Database has no head !!!\n");
 	}
 	else
 	{
-	    tmp = db->head;
-
-	    if( !tmp )
+	    for( i = 0 ; i < db->count ; i++ )
 	    {
-		TRACE_WARNING( DB , "Database has no head !!!\n");
-	    }
-	    else
-	    {
-		for( i = 0 ; i < db->count ; i++ )
-		{
-		    if( !tmp )
-			break;
+		if( !tmp )
+		    break;
 
-		    lzo1x_999_compress( tmp , tmp->size , tmp , &compressed_size , working_mem );
+		lzf_compress( tmp , tmp->size , tmp , tmp->size );
 
-		    tmp = tmp->next;
-		}
+		tmp = tmp->next;
 	    }
 	}
     }
-
-    zfree( working_mem );
 
     return ret;
 }
@@ -420,46 +409,35 @@ int decompressDb( void )
     TRACE_2( DB , "decompressDb().\n");
     int ret = 0;
     int i = 0;
-    unsigned char *working_mem = ( unsigned char * )zmalloc(LZO1X_MEM_COMPRESS);
     struct entry *tmp = NULL;
     size_t compressed_size = 0;
 
-    ret = lzo_init();
-    if( ret < 0 )
+    if( !db->count )
     {
-	TRACE_ERROR( DB , "Failed to init lzo.\n");
+	TRACE_WARNING( DB , "Database is empty.\n");
+	ret = -ENODATA;
     }
     else
     {
-	if( !db->count )
+	tmp = db->head;
+
+	if( !tmp )
 	{
-	    TRACE_WARNING( DB , "Database is empty.\n");
-	    ret = -ENODATA;
+	    TRACE_WARNING( DB , "Database has no head !!!\n");
 	}
 	else
 	{
-	    tmp = db->head;
-
-	    if( !tmp )
+	    for( i = 0 ; i < db->count ; i++ )
 	    {
-		TRACE_WARNING( DB , "Database has no head !!!\n");
-	    }
-	    else
-	    {
-		for( i = 0 ; i < db->count ; i++ )
-		{
-		    if( !tmp )
-			break;
+		if( !tmp )
+		    break;
 
-//		    lzo1x_999_compress( tmp , sizeof( struct entry ) , tmp , &compressed_size , working_mem );
+		lzf_decompress( tmp , tmp->size , tmp , tmp->size );
 
-		    tmp = tmp->next;
-		}
+		tmp = tmp->next;
 	    }
 	}
     }
-
-    zfree( working_mem );
 
     return ret;
 }
