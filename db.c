@@ -376,29 +376,29 @@ int compressDb( void )
 
     if( !db->count )
     {
-		TRACE_WARNING( DB , "Database is empty.\n");
-		ret = -ENODATA;
+	TRACE_WARNING( DB , "Database is empty.\n");
+	ret = -ENODATA;
     }
     else
     {
-		tmp = db->head;
+	tmp = db->head;
 
+	if( !tmp )
+	{
+	    TRACE_WARNING( DB , "Database has no head !!!\n");
+	}
+	else
+	{
+	    for( i = 0 ; i < db->count ; i++ )
+	    {
 		if( !tmp )
-		{
-			TRACE_WARNING( DB , "Database has no head !!!\n");
-		}
-		else
-		{
-			for( i = 0 ; i < db->count ; i++ )
-			{
-				if( !tmp )
-					break;
+		   break;
 
-				lzf_compress( tmp , tmp->size , tmp , tmp->size );
+	    	lzf_compress( tmp , tmp->size , tmp , tmp->size );
 
-				tmp = tmp->next;
-			}
-		}
+		tmp = tmp->next;
+	    }
+	}
     }
 
     return ret;
@@ -414,29 +414,29 @@ int decompressDb( void )
 
     if( !db->count )
     {
-		TRACE_WARNING( DB , "Database is empty.\n");
-		ret = -ENODATA;
+	TRACE_WARNING( DB , "Database is empty.\n");
+	ret = -ENODATA;
     }
     else
     {
-		tmp = db->head;
+	tmp = db->head;
 
+	if( !tmp )
+	{
+	    TRACE_WARNING( DB , "Database has no head !!!\n");
+	}
+	else
+	{
+	    for( i = 0 ; i < db->count ; i++ )
+	    {
 		if( !tmp )
-		{
-			TRACE_WARNING( DB , "Database has no head !!!\n");
-		}
-		else
-		{
-			for( i = 0 ; i < db->count ; i++ )
-			{
-				if( !tmp )
-					break;
+		    break;
 
-				lzf_decompress( tmp , tmp->size , tmp , tmp->size );
+		lzf_decompress( tmp , tmp->size , tmp , tmp->size );
 
-				tmp = tmp->next;
-			}
-		}
+		tmp = tmp->next;
+	    }
+	}
     }
 
     return ret;
