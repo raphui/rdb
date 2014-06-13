@@ -125,8 +125,8 @@ int insertDb( char *key , char *value )
             else
                 e->key = ( char * )zmalloc( size * sizeof( char ) );
 
-            strncpy( e->key , key , size );
-	    global_size += size;
+			strncpy( e->key , key , size );
+			global_size += size;
 
             size = strlen( value );
 
@@ -139,14 +139,14 @@ int insertDb( char *key , char *value )
                 e->value = ( char * )zmalloc( size * sizeof( char ) );
 
             strncpy( e->value , value , size );
-	    global_size += size;
+			global_size += size;
 
             e->hash = hash( key , value );
             e->used = 1;
-	    global_size += sizeof( e->hash );
-	    global_size += sizeof( e->used );
+			global_size += sizeof( e->hash );
+			global_size += sizeof( e->used );
 
-	    e->size = global_size;
+			e->size = global_size;
 
             TRACE_1( DB , "Add node in database.\n");
 
@@ -244,7 +244,7 @@ struct entry *searchDb( char *key )
                 if( tmp->hash == hash( key , tmp->value ) )
                 {
                     ret = tmp;
-		    tmp->used++;
+					tmp->used++;
                     break;
                 }
             }
@@ -392,9 +392,9 @@ int compressDb( void )
 	    for( i = 0 ; i < db->count ; i++ )
 	    {
 		if( !tmp )
-		    break;
+		   break;
 
-		lzf_compress( tmp , tmp->size , tmp , tmp->size );
+	    	lzf_compress( tmp , tmp->size , tmp , tmp->size );
 
 		tmp = tmp->next;
 	    }
@@ -664,7 +664,7 @@ char *compress( struct environment *env )
     else
     {
 
-	ret = compressDb();
+		ret = compressDb();
 
         if( ret < 0 )
             snprintf( status , 124 , "Cannot compress database.\n");
@@ -689,7 +689,7 @@ char *decompress( struct environment *env )
     }
     else
     {
-	ret = decompressDb();
+		ret = decompressDb();
 
         if( ret < 0 )
             snprintf( status , 124 , "Cannot decompress database.\n");
