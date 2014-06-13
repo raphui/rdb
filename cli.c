@@ -59,7 +59,7 @@ static int searchCliCmd( const char *cmd )
 
     for( i = 0 ; i < CLI_COUNT_COMMAND ; i++ )
     {
-        if( strstr( cmd , cliCmd[i].command ) != NULL )
+        if( strcmp( cmd , cliCmd[i].command ) == 0 )
         {
             TRACE_1( CLI , "Command found, id: %d" , i );
 
@@ -122,6 +122,9 @@ void *doCommand( char *cmd )
         *( ptr + strlen( ptr ) - 1 ) = 0;
     }
 
+    ptr = strchr( cmd , '\n' );
+    if( ptr )
+	*ptr = 0;
 
     if( ( idFuncptr = searchCliCmd( cmd ) ) >= 0 )
     {
