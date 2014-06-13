@@ -32,6 +32,8 @@ typedef struct entry
     struct entry *prev;
     struct entry *next;
 
+    size_t key_size;
+    size_t value_size;
     size_t size;
 
 }Entry;
