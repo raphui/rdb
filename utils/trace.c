@@ -30,7 +30,7 @@ typedef struct trace_module
 
 trace_module trace_modules[] =
 {
-    {"DB"           ,   TRACE_LEVEL_DEFAULT },
+    {"DB"           ,   TRACE_LEVEL_ALL	    },
     {"CLI"          ,   TRACE_LEVEL_DEFAULT },
     {"COMMON"       ,   TRACE_LEVEL_DEFAULT },
     {"SERVER"       ,   TRACE_LEVEL_DEFAULT },

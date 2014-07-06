@@ -467,33 +467,73 @@ int decompressDb( void )
     return ret;
 }
 
-static void sortAsc( struct entry **a , int n )
+static struct entry *getEntryAt( int n )
+{
+    TRACE_2( DB , "getEntryAt().\n");
+
+    struct entry *tmp;
+    struct entry *ret;
+    int i = 0;
+
+    if( n > count )
+    {
+	TRACE_WARNING( DB , "n is too big !\n" );
+	return NULL;
+    }
+
+    tmp = db->head;
+
+    if( !tmp )
+    {
+        TRACE_WARNING( DB , "Database has no head !!!!\n");
+        ret = NULL;
+    }
+    else
+    {
+	do
+	{
+	    tmp = tmp->next;
+
+	}while( tmp || ( i++ < n ) );
+
+	ret = tmp;
+    }
+
+    return ret;
+}
+
+static void sortAsc( struct entry *a , int n )
 {
     TRACE_2( DB , "sortAsc( %p , %d )." , a , n );
 	
     if( n < 2 )
     	return;
 
-    int p =  a[n / 2]->key;
-    struct entry **l = a;
-    struct entry **r = a + n - 1;
+    struct entry *tmp = getEntryAt( n / 2 );
+    int p =  tmp->key;
+    struct entry *l = a;
+    struct entry *r = getEntryAt( n - 1 );
     struct entry *t;
+
+    TRACE_3( DB , "pivot: %x\n" , p )
 
     while( l <= r )
     {
 	TRACE_3( DB , "%p , %p\n" , l , r );
-	TRACE_3( DB , "%x , %x\n" , (*l)->key , (*r)->key );
+	TRACE_3( DB , "%x , %x\n" , l->key , r->key );
 
-    	if( (*l)->key < p )
-    	    *l++;
-    	else if( (*r)->key > p )
-    	    *r--;
+    	if( l->key < p )
+    	    l++;
+    	else if( r->key > p )
+    	    r--;
     	else
     	{
 
-    	    t = *l;
-    	    *l++ = *r;
-    	    *r-- = t;
+    	    t = l;
+	    l = r;
+	    l++;
+	    r = t;
+	    r++;
     	}
     }
 
