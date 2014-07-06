@@ -26,6 +26,7 @@ static cliCommand_t cliCmd[] =
     {"dump_trace_level" ,   &dumpTrace      },
     {"get_level"        ,   &levelInfo      },
     {"help"             ,   &help           },
+    {"sort"		,   &sort	    },
     {"print"            ,   &print          },
     {"set_trace_level"  ,   &setTraceLevel  },
     {"set"              ,   &setPair        },

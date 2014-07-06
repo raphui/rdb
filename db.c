@@ -229,6 +229,10 @@ struct entry *searchDb( char *key )
 
     struct entry *ret = NULL;
     struct entry *tmp = NULL;
+    struct timeval t1;
+    struct timeval t2;
+
+    double elapsed_time  = 0;
 
     tmp = db->head;
 
@@ -239,6 +243,9 @@ struct entry *searchDb( char *key )
     }
     else
     {
+	TRACE_3( DB , "start timer.\n");
+	gettimeofday( &t1 , NULL );
+
         do
         {
             if( !strcmp( tmp->key , key ) )
@@ -253,6 +260,15 @@ struct entry *searchDb( char *key )
 
             tmp = tmp->next;
         }while( tmp );
+
+	TRACE_3( DB , "stop timer.\n");
+	gettimeofday( &t2 , NULL );
+
+	elapsed_time = ( t2.tv_sec - t1.tv_sec ) * 1000.0;
+	elapsed_time += ( t2.tv_usec - t1.tv_usec ) / 1000.0;
+
+	TRACE_INFO( DB , "elapsed_time: %f\n" , elapsed_time );
+
     }
 
     if( !ret )
@@ -449,6 +465,77 @@ int decompressDb( void )
     }
 
     return ret;
+}
+
+static void sortAsc( struct entry **a , int n )
+{
+    TRACE_2( DB , "sortAsc( %p , %d )." , a , n );
+	
+    if( n < 2 )
+    	return;
+
+    int p =  a[n / 2]->key;
+    struct entry **l = a;
+    struct entry **r = a + n - 1;
+    struct entry *t;
+
+    while( l <= r )
+    {
+	TRACE_3( DB , "%p , %p\n" , l , r );
+	TRACE_3( DB , "%x , %x\n" , (*l)->key , (*r)->key );
+
+    	if( (*l)->key < p )
+    	    *l++;
+    	else if( (*r)->key > p )
+    	    *r--;
+    	else
+    	{
+
+    	    t = *l;
+    	    *l++ = *r;
+    	    *r-- = t;
+    	}
+    }
+
+
+    sortAsc( a , r - a + 1 );
+    sortAsc( l, a + n - l );
+}
+
+char *sort( struct environment *env )
+{
+
+    TRACE_2( DB , "sort().\n");
+
+    char *status = NULL;
+
+    struct entry *tmp = NULL;
+
+    status = ( char * )zmalloc( 24 * sizeof( char ) );
+
+    if( !status )
+    {
+    	TRACE_ERROR( DB , "Failed to allocate status string.\n");
+    }
+    else
+    {
+	tmp = db->head;
+
+        if( !tmp )
+        {
+            TRACE_WARNING( DB , "Database has no head !!!\n");
+            sprintf( status , "Error: database has no head.\n");
+        }
+        else
+        {
+	
+	   sortAsc( &db->head , db->count );
+
+	   snprintf( status , 24 , "OK" );
+	}
+    }
+	
+    return status;
 }
 
 
