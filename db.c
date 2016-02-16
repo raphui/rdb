@@ -475,7 +475,7 @@ static struct entry *getEntryAt( int n )
     struct entry *ret;
     int i = 0;
 
-    if( n > count )
+    if( n > db->count )
     {
 	TRACE_WARNING( DB , "n is too big !\n" );
 	return NULL;
